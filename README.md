@@ -11,3 +11,12 @@
 ```bash
 docker-compose up -d
 ```
+
+## 설계 문서
+- TDD 정리 `/docs/TDD란.md`
+- 기능, 비기능 요구사항 정리 `/docs/기능, 비기능 요구사항 정리.md`
+- milestone 작성
+  - TDD & 시나리오 분석 https://github.com/JayeeHong/server-java/issues/3
+  - 시나리오 모델링 (다이어그램) https://github.com/JayeeHong/server-java/issues/8
+  - Mock API & Swagger 연동 https://github.com/JayeeHong/server-java/issues/16
+  - 통합 테스트 & 리팩토링 + 회고 https://github.com/JayeeHong/server-java/issues/20
