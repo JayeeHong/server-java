@@ -20,3 +20,6 @@ docker-compose up -d
   - 시나리오 모델링 (다이어그램) https://github.com/JayeeHong/server-java/issues/8
   - Mock API & Swagger 연동 https://github.com/JayeeHong/server-java/issues/16
   - 통합 테스트 & 리팩토링 + 회고 https://github.com/JayeeHong/server-java/issues/20
+- 시퀀스 다이어그램 `/docs/시퀀스다이어그램.png`
+- 클래스 다이어그램 `/docs/클래스다이어그램.png`
+- ERD `/docs/ERD.png`
