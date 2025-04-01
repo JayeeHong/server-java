@@ -23,4 +23,15 @@ public class ProductController {
         return new ProductDto(1L, "상품A", 1000, 100);
     }
 
+    @GetMapping("/top5")
+    public List<ProductDto> getTop5Products() {
+        return List.of(
+            new ProductDto(5L, "상품E", 5000, 500),
+            new ProductDto(4L, "상품D", 4000, 400),
+            new ProductDto(3L, "상품C", 3000, 300),
+            new ProductDto(2L, "상품B", 2000, 200),
+            new ProductDto(1L, "상품A", 1000, 100)
+        );
+    }
+
 }
