@@ -25,7 +25,6 @@ public interface ProductApi {
         @ApiResponse(responseCode = "500", description = "서버 에러",
             content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
-    @GetMapping("/list")
     public List<Product> getProducts();
 
     @Operation(summary = "상품 상세 조회")
@@ -36,7 +35,6 @@ public interface ProductApi {
         @ApiResponse(responseCode = "500", description = "서버 에러",
             content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
-    @GetMapping("/detail/{productId}")
     public Product getProduct(@PathVariable long productId);
 
     @Operation(summary = "Top 5 인기 상품 조회")
@@ -46,7 +44,6 @@ public interface ProductApi {
         @ApiResponse(responseCode = "500", description = "서버 에러",
             content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
-    @GetMapping("/top5")
     public List<Product> getTop5Products();
 
 }
