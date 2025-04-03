@@ -11,9 +11,9 @@ public record OrderItem(
     @Schema(description = "상품 ID", example = "1")
     long productId,
     @Schema(description = "주문 상품 갯수", example = "10")
-    int quantity, //주문 상품 갯수
-    @Schema(description = "주문 상품 금액", example = "100")
-    int price //주문 상품의 금액 (상품금액 * 갯수)
+    int quantity,
+    @Schema(description = "주문 상품 금액 (상품금액 * 갯수)", example = "100")
+    int price
 ) {
 
 }
