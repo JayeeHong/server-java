@@ -25,7 +25,7 @@ public interface ProductApi {
     List<Product> getProducts();
 
     @Operation(summary = "상품 상세 조회")
-    @Parameter(name = "productId", description = "사용자 ID", required = true)
+    @Parameter(name = "productId", description = "상품 ID", required = true)
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "정상 응답",
             content = @Content(schema = @Schema(implementation = Product.class))),
