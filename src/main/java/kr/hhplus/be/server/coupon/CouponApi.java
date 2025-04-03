@@ -10,8 +10,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
-import kr.hhplus.be.server.product.Product;
-import kr.hhplus.be.server.user.User;
 import org.springframework.web.ErrorResponse;
 import org.springframework.web.bind.annotation.PathVariable;
 
@@ -29,7 +27,7 @@ public interface CouponApi {
         @ApiResponse(responseCode = "500", description = "서버 에러",
             content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
-    UserCoupon issueCoupon(@PathVariable long userId, @PathVariable long couponId);
+    UserCoupon issueCoupon(long userId, long couponId);
 
     @Operation(summary = "전체 쿠폰 조회")
     @Parameter(name = "userId", description = "사용자 ID", required = true)
@@ -39,6 +37,6 @@ public interface CouponApi {
         @ApiResponse(responseCode = "500", description = "서버 에러",
             content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
-    List<UserCoupon> getCoupons(@PathVariable long userId);
+    List<UserCoupon> getCoupons(long userId);
 
 }

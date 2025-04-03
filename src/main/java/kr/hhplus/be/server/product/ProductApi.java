@@ -32,7 +32,7 @@ public interface ProductApi {
         @ApiResponse(responseCode = "500", description = "서버 에러",
             content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
-    Product getProduct(@PathVariable long productId);
+    Product getProduct(long productId);
 
     @Operation(summary = "Top 5 인기 상품 조회")
     @ApiResponses({

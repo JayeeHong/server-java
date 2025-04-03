@@ -25,7 +25,7 @@ public interface UserApi {
         @ApiResponse(responseCode = "500", description = "서버 에러",
             content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
-    User chargeBalance(@PathVariable long userId, long amount);
+    User chargeBalance(long userId, long amount);
 
     @Operation(summary = "잔액 조회")
     @Parameter(name = "userId", description = "사용자 ID", required = true)
@@ -35,6 +35,6 @@ public interface UserApi {
         @ApiResponse(responseCode = "500", description = "서버 에러",
             content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
-    User getBalance(@PathVariable long userId);
+    User getBalance(long userId);
 
 }
