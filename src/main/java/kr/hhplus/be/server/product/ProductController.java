@@ -1,37 +1,29 @@
 package kr.hhplus.be.server.product;
 
 import java.util.List;
-import org.springframework.web.bind.annotation.GetMapping;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/v1/product")
-public class ProductController {
+@RequiredArgsConstructor
+public class ProductController implements ProductApi {
 
-    @GetMapping("/list")
+    private final ProductService productService;
+
+    @Override
     public List<Product> getProducts() {
-        return List.of(
-            new Product(1L, "상품A", 1000, 100),
-            new Product(2L, "상품B", 2000, 200)
-        );
+        return productService.getProducts();
     }
 
-    @GetMapping("/detail/{productId}")
+    @Override
     public Product getProduct(@PathVariable long productId) {
-        return new Product(1L, "상품A", 1000, 100);
+        return productService.getProduct(productId);
     }
 
-    @GetMapping("/top5")
+    @Override
     public List<Product> getTop5Products() {
-        return List.of(
-            new Product(5L, "상품E", 5000, 500),
-            new Product(4L, "상품D", 4000, 400),
-            new Product(3L, "상품C", 3000, 300),
-            new Product(2L, "상품B", 2000, 200),
-            new Product(1L, "상품A", 1000, 100)
-        );
+        return productService.getTop5Products();
     }
 
 }
