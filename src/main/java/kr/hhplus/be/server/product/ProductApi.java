@@ -10,12 +10,10 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
 import org.springframework.web.ErrorResponse;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 @Tag(name = "Product", description = "상품 관련 API")
-@RequestMapping("/api/v1/product")
 public interface ProductApi {
 
     @Operation(summary = "전체 상품 조회")
@@ -25,7 +23,7 @@ public interface ProductApi {
         @ApiResponse(responseCode = "500", description = "서버 에러",
             content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
-    public List<Product> getProducts();
+    List<Product> getProducts();
 
     @Operation(summary = "상품 상세 조회")
     @Parameter(name = "productId", description = "사용자 ID", required = true)
@@ -35,7 +33,7 @@ public interface ProductApi {
         @ApiResponse(responseCode = "500", description = "서버 에러",
             content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
-    public Product getProduct(@PathVariable long productId);
+    Product getProduct(@PathVariable long productId);
 
     @Operation(summary = "Top 5 인기 상품 조회")
     @ApiResponses({
@@ -44,6 +42,6 @@ public interface ProductApi {
         @ApiResponse(responseCode = "500", description = "서버 에러",
             content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
-    public List<Product> getTop5Products();
+    List<Product> getTop5Products();
 
 }
