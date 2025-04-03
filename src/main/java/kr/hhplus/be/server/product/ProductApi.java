@@ -11,7 +11,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
 import org.springframework.web.ErrorResponse;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
 
 @Tag(name = "Product", description = "상품 관련 API")
 public interface ProductApi {
