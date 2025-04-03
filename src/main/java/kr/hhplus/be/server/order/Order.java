@@ -1,5 +1,6 @@
 package kr.hhplus.be.server.order;
 
+import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.List;
 
@@ -13,7 +14,8 @@ public record Order(
     int totalPrice,
     @Schema(description = "주문 상태", example = "PAY_COMPLETE", implementation = OrderStatus.class)
     OrderStatus status,
-    @Schema(description = "주문 상품 목록", implementation = OrderItem.class)
+    @Schema(description = "주문 상품 목록")
+    @ArraySchema(schema = @Schema(implementation = OrderItem.class))
     List<OrderItem> orderItems,
     @Schema(description = "생성시간", example = "1743682862736")
     long createdAt,
