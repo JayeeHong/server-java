@@ -12,7 +12,7 @@ public class UserRepositoryImpl implements UserRepository {
     }
 
     @Override
-    public User addBalance(long userId, int amount) {
+    public User updateBalance(long userId, int amount) {
         return new User((userId), "userA", amount);
     }
 }

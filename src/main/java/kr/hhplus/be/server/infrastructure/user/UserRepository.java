@@ -6,6 +6,6 @@ public interface UserRepository {
 
     User findById(long userId);
 
-    User addBalance(long userId, int amount);
+    User updateBalance(long userId, int amount);
 
 }

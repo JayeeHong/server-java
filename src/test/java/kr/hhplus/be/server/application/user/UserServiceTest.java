@@ -14,6 +14,7 @@ import kr.hhplus.be.server.interfaces.user.UserResponse;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -36,14 +37,15 @@ class UserServiceTest {
         // given
         User userA = new User(USER_ID, "userA", amount);
         given(userRepository.findById(USER_ID)).willReturn(userA);
-        given(userRepository.addBalance(USER_ID, amount)).willReturn(userA);
+        int userABalance = userA.addBalance(amount);
+        given(userRepository.updateBalance(USER_ID, userABalance)).willReturn(new User(USER_ID, "userA", userABalance));
 
         // when
         UserResponse.User user = userService.chargeBalance(USER_ID, amount);
 
         // then
         assertThat(user.id()).isEqualTo(userA.id());
-        assertThat(user.balance()).isEqualTo(userA.balance());
+        assertThat(user.balance()).isEqualTo(userABalance);
         verify(userRepository).findById(USER_ID);
     }
 
@@ -57,7 +59,7 @@ class UserServiceTest {
             .isInstanceOf(IllegalArgumentException.class)
             .hasMessage("유효하지 않는 사용자입니다.");
 
-        verify(userRepository, never()).addBalance(anyLong(), anyInt());
+        verify(userRepository, never()).updateBalance(anyLong(), anyInt());
     }
 
     @Test

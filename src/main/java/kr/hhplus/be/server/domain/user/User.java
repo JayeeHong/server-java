@@ -25,9 +25,11 @@ public record User(
         return new User(id, name, 0);
     }
 
-    public void addBalance(int amount) {
+    public int addBalance(int amount) {
         int addedBalance = balance + amount;
         validateBalance(addedBalance);
+
+        return addedBalance;
     }
 
     private void validateBalance(int balance) {

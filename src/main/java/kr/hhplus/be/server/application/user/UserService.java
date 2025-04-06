@@ -28,10 +28,10 @@ public class UserService {
         // 3) 충전 가능한 최소 금액인지
 
         // 4) 충전 후 금액 체크
-        findUser.addBalance(chargeAmount.getValue());
+        int addedBalance = findUser.addBalance(chargeAmount.getValue());
 
         // 잔액 충전
-        User user = userRepository.addBalance(userId, amount);
+        User user = userRepository.updateBalance(userId, addedBalance);
 
         return user.translateUser(user);
     }
