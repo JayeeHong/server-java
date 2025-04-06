@@ -1,4 +1,4 @@
-package kr.hhplus.be.server.user;
+package kr.hhplus.be.server.interfaces.user;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -8,8 +8,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import kr.hhplus.be.server.domain.user.User;
 import org.springframework.web.ErrorResponse;
-import org.springframework.web.bind.annotation.PathVariable;
 
 @Tag(name = "User", description = "사용자 관련 API")
 public interface UserApi {
@@ -25,7 +25,7 @@ public interface UserApi {
         @ApiResponse(responseCode = "500", description = "서버 에러",
             content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
-    User chargeBalance(long userId, long amount);
+    UserResponse.User chargeBalance(long userId, long amount);
 
     @Operation(summary = "잔액 조회")
     @Parameter(name = "userId", description = "사용자 ID", required = true)
@@ -35,6 +35,6 @@ public interface UserApi {
         @ApiResponse(responseCode = "500", description = "서버 에러",
             content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
-    User getBalance(long userId);
+    UserResponse.User getBalance(long userId);
 
 }

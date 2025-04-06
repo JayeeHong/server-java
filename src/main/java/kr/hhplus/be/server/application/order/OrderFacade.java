@@ -4,7 +4,7 @@ import kr.hhplus.be.server.coupon.CouponService;
 import kr.hhplus.be.server.interfaces.order.OrderRequest.CreateOrder;
 import kr.hhplus.be.server.interfaces.order.OrderResponse;
 import kr.hhplus.be.server.interfaces.order.OrderResponse.Order;
-import kr.hhplus.be.server.user.UserService;
+import kr.hhplus.be.server.application.user.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
