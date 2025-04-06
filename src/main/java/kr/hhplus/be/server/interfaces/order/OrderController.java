@@ -1,6 +1,8 @@
-package kr.hhplus.be.server.order;
+package kr.hhplus.be.server.interfaces.order;
 
-import java.util.List;
+import kr.hhplus.be.server.application.order.OrderFacade;
+import kr.hhplus.be.server.application.order.OrderService;
+import kr.hhplus.be.server.interfaces.order.OrderRequest.CreateOrder;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -13,11 +15,12 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class OrderController implements OrderApi {
 
+    private final OrderFacade orderFacade;
     private final OrderService orderService;
 
     @Override
     @PostMapping("/{userId}")
-    public Order createOrder(@PathVariable long userId, @RequestBody Order order) {
-        return orderService.registOrder(userId, order);
+    public OrderResponse.Order createOrder(@PathVariable long userId, @RequestBody CreateOrder createOrder) {
+        return orderFacade.registOrder(userId, createOrder);
     }
 }
