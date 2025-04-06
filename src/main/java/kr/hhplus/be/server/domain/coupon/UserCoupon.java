@@ -1,4 +1,4 @@
-package kr.hhplus.be.server.coupon;
+package kr.hhplus.be.server.domain.coupon;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 

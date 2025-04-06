@@ -1,6 +1,9 @@
-package kr.hhplus.be.server.coupon;
+package kr.hhplus.be.server.application.coupon;
 
 import java.util.List;
+import kr.hhplus.be.server.domain.coupon.CouponType;
+import kr.hhplus.be.server.domain.coupon.UserCoupon;
+import kr.hhplus.be.server.interfaces.coupon.CouponResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -8,7 +11,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class CouponService {
 
-    public UserCoupon issueCoupon(long userId, long couponId) {
+    public CouponResponse.UserCoupon issueCoupon(long userId, long couponId) {
 
         // 사용자 식별자 유효성 체크
 
@@ -20,31 +23,31 @@ public class CouponService {
 
         // 쿠폰 이력 추가
 
-        return new UserCoupon(1L, "COU20250403", 20, CouponType.PERCENTAGE,
+        return new CouponResponse.UserCoupon(1L, "COU20250403", 20, CouponType.PERCENTAGE,
             false, System.currentTimeMillis(), System.currentTimeMillis());
     }
 
-    public List<UserCoupon> getCoupons(long userId) {
+    public List<CouponResponse.UserCoupon> getCoupons(long userId) {
 
         // 사용자 식별자 유효성 체크
 
         // 쿠폰 목록 조회
 
         return List.of(
-            new UserCoupon(1L, "COU20250403001", 20, CouponType.PERCENTAGE,
+            new CouponResponse.UserCoupon(1L, "COU20250403001", 20, CouponType.PERCENTAGE,
                 false, System.currentTimeMillis(), System.currentTimeMillis()),
-            new UserCoupon(1L, "COU20250403002", 1000, CouponType.FIXED_AMOUNT,
+            new CouponResponse.UserCoupon(1L, "COU20250403002", 1000, CouponType.FIXED_AMOUNT,
                 false, System.currentTimeMillis(), System.currentTimeMillis())
         );
     }
 
-    public UserCoupon getCoupon(long userId, long couponId) {
+    public CouponResponse.UserCoupon getCoupon(long userId, long couponId) {
 
         // 사용자 식별자 유효성 체크
 
         // 사용자의 쿠폰 조회
         
-        return new UserCoupon(1L, "COU20250403", 20, CouponType.PERCENTAGE,
+        return new CouponResponse.UserCoupon(1L, "COU20250403", 20, CouponType.PERCENTAGE,
             false, System.currentTimeMillis(), System.currentTimeMillis());
     }
 

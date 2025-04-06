@@ -1,6 +1,8 @@
-package kr.hhplus.be.server.coupon;
+package kr.hhplus.be.server.interfaces.coupon;
 
 import java.util.List;
+import kr.hhplus.be.server.application.coupon.CouponService;
+import kr.hhplus.be.server.domain.coupon.UserCoupon;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -17,13 +19,13 @@ public class CouponController implements CouponApi {
 
     @Override
     @PostMapping("/{userId}/{couponId}")
-    public UserCoupon createCoupon(@PathVariable long userId, @PathVariable long couponId) {
+    public CouponResponse.UserCoupon createCoupon(@PathVariable long userId, @PathVariable long couponId) {
         return couponService.issueCoupon(userId, couponId);
     }
 
     @Override
     @GetMapping("/{userId}")
-    public List<UserCoupon> getUserCoupons(@PathVariable long userId) {
+    public List<CouponResponse.UserCoupon> getUserCoupons(@PathVariable long userId) {
         return couponService.getCoupons(userId);
     }
 

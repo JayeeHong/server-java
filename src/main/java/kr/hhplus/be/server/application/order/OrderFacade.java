@@ -1,6 +1,6 @@
 package kr.hhplus.be.server.application.order;
 
-import kr.hhplus.be.server.coupon.CouponService;
+import kr.hhplus.be.server.application.coupon.CouponService;
 import kr.hhplus.be.server.interfaces.order.OrderRequest.CreateOrder;
 import kr.hhplus.be.server.interfaces.order.OrderResponse;
 import kr.hhplus.be.server.interfaces.order.OrderResponse.Order;
