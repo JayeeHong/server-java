@@ -18,7 +18,7 @@ public class UserController implements UserApi {
 
     @Override
     @PostMapping("/{userId}/charge")
-    public UserResponse.User chargeBalance(@PathVariable long userId, long amount) {
+    public UserResponse.User chargeBalance(@PathVariable long userId, int amount) {
         return userService.chargeBalance(userId, amount);
     }
 

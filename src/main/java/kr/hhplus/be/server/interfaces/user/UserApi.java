@@ -25,7 +25,7 @@ public interface UserApi {
         @ApiResponse(responseCode = "500", description = "서버 에러",
             content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
-    UserResponse.User chargeBalance(long userId, long amount);
+    UserResponse.User chargeBalance(long userId, int amount);
 
     @Operation(summary = "잔액 조회")
     @Parameter(name = "userId", description = "사용자 ID", required = true)
