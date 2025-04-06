@@ -1,6 +1,8 @@
-package kr.hhplus.be.server.product;
+package kr.hhplus.be.server.interfaces.product;
 
 import java.util.List;
+import kr.hhplus.be.server.domain.product.Product;
+import kr.hhplus.be.server.application.product.ProductService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -16,19 +18,19 @@ public class ProductController implements ProductApi {
 
     @Override
     @GetMapping
-    public List<Product> getAllProducts() {
+    public List<ProductResponse.Product> getAllProducts() {
         return productService.getProducts();
     }
 
     @Override
     @GetMapping("/{productId}")
-    public Product getProduct(@PathVariable long productId) {
+    public ProductResponse.Product getProduct(@PathVariable long productId) {
         return productService.getProduct(productId);
     }
 
     @Override
     @GetMapping("/top5")
-    public List<Product> getTop5Products() {
+    public List<ProductResponse.Product> getTop5Products() {
         return productService.getTop5Products();
     }
 
