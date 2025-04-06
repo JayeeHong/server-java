@@ -16,14 +16,14 @@ public class CouponController implements CouponApi {
     private final CouponService couponService;
 
     @Override
-    @PostMapping("/issue/{userId}/{couponId}")
-    public UserCoupon issueCoupon(@PathVariable long userId, @PathVariable long couponId) {
+    @PostMapping("/{userId}/{couponId}")
+    public UserCoupon createCoupon(@PathVariable long userId, @PathVariable long couponId) {
         return couponService.issueCoupon(userId, couponId);
     }
 
     @Override
-    @GetMapping("/coupons/{userId}")
-    public List<UserCoupon> getCoupons(@PathVariable long userId) {
+    @GetMapping("/{userId}")
+    public List<UserCoupon> getUserCoupons(@PathVariable long userId) {
         return couponService.getCoupons(userId);
     }
 

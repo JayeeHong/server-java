@@ -20,6 +20,6 @@ public interface OrderApi {
         @ApiResponse(responseCode = "500", description = "서버 에러",
             content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
-    Order registOrder(long userId, Order order);
+    Order createOrder(long userId, Order order);
 
 }

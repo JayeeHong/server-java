@@ -15,13 +15,13 @@ public class ProductController implements ProductApi {
     private final ProductService productService;
 
     @Override
-    @GetMapping("/list")
-    public List<Product> getProducts() {
+    @GetMapping
+    public List<Product> getAllProducts() {
         return productService.getProducts();
     }
 
     @Override
-    @GetMapping("/detail/{productId}")
+    @GetMapping("/{productId}")
     public Product getProduct(@PathVariable long productId) {
         return productService.getProduct(productId);
     }

@@ -10,7 +10,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
 import org.springframework.web.ErrorResponse;
-import org.springframework.web.bind.annotation.PathVariable;
 
 @Tag(name = "Product", description = "상품 관련 API")
 public interface ProductApi {
@@ -22,7 +21,7 @@ public interface ProductApi {
         @ApiResponse(responseCode = "500", description = "서버 에러",
             content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
-    List<Product> getProducts();
+    List<Product> getAllProducts();
 
     @Operation(summary = "상품 상세 조회")
     @Parameter(name = "productId", description = "상품 ID", required = true)

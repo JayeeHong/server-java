@@ -11,7 +11,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
 import org.springframework.web.ErrorResponse;
-import org.springframework.web.bind.annotation.PathVariable;
 
 @Tag(name = "Coupon", description = "쿠폰 관련 API")
 public interface CouponApi {
@@ -27,9 +26,9 @@ public interface CouponApi {
         @ApiResponse(responseCode = "500", description = "서버 에러",
             content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
-    UserCoupon issueCoupon(long userId, long couponId);
+    UserCoupon createCoupon(long userId, long couponId);
 
-    @Operation(summary = "전체 쿠폰 조회")
+    @Operation(summary = "사용자의 전체 쿠폰 조회")
     @Parameter(name = "userId", description = "사용자 ID", required = true)
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "정상 응답",
@@ -37,6 +36,6 @@ public interface CouponApi {
         @ApiResponse(responseCode = "500", description = "서버 에러",
             content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
-    List<UserCoupon> getCoupons(long userId);
+    List<UserCoupon> getUserCoupons(long userId);
 
 }

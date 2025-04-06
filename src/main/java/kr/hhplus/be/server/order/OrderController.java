@@ -16,8 +16,8 @@ public class OrderController implements OrderApi {
     private final OrderService orderService;
 
     @Override
-    @PostMapping("/regist/{userId}")
-    public Order registOrder(@PathVariable long userId, @RequestBody Order order) {
+    @PostMapping("/{userId}")
+    public Order createOrder(@PathVariable long userId, @RequestBody Order order) {
         return orderService.registOrder(userId, order);
     }
 }

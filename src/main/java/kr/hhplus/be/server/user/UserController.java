@@ -15,13 +15,13 @@ public class UserController implements UserApi {
     private final UserService userService;
 
     @Override
-    @PostMapping("/charge/balance/{userId}")
+    @PostMapping("/{userId}/charge")
     public User chargeBalance(@PathVariable long userId, long amount) {
         return userService.chargeBalance(userId, amount);
     }
 
     @Override
-    @GetMapping("/balance/{userId}")
+    @GetMapping("/{userId}/balance")
     public User getBalance(@PathVariable long userId) {
         return userService.getBalance(userId);
     }
