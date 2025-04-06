@@ -38,4 +38,14 @@ public class CouponService {
         );
     }
 
+    public UserCoupon getCoupon(long userId, long couponId) {
+
+        // 사용자 식별자 유효성 체크
+
+        // 사용자의 쿠폰 조회
+        
+        return new UserCoupon(1L, "COU20250403", 20, CouponType.PERCENTAGE,
+            false, System.currentTimeMillis(), System.currentTimeMillis());
+    }
+
 }
