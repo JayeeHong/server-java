@@ -1,7 +1,6 @@
 package kr.hhplus.be.server.interfaces.user;
 
 import kr.hhplus.be.server.application.user.UserService;
-import kr.hhplus.be.server.domain.user.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -25,7 +24,7 @@ public class UserController implements UserApi {
     @Override
     @GetMapping("/{userId}/balance")
     public UserResponse.User getBalance(@PathVariable long userId) {
-        return userService.getBalance(userId);
+        return userService.getUser(userId);
     }
 
 }

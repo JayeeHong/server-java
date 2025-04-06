@@ -23,7 +23,7 @@ public class OrderFacade {
         // 2. 사용자의 쿠폰 유무 조회 및 적용 (TODO 쿠폰 적용하여 계산)
         couponService.getCoupon(userId, 1L);
         // 3. 사용자의 결제 금액 조회 및 계산 (TODO 결제 금액에서 주문 금액 계산)
-        userService.getBalance(userId);
+        userService.getUser(userId);
 
         return null;
     }
