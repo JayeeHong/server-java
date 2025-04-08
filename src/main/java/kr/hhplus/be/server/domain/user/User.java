@@ -1,45 +1,39 @@
 package kr.hhplus.be.server.domain.user;
 
 import kr.hhplus.be.server.interfaces.user.UserResponse;
+import lombok.Getter;
 
-public record User(
-    long id,
-    String name,
-    int balance
-) {
+@Getter
+public class User {
 
-    private static final long MIN_BALANCE = 0;
-    private static final long MAX_BALANCE = 1000000; //100만원
+    private final long id;
+    private final String name;
+    private Balance balance;
 
-    public User {
-        if (balance < MIN_BALANCE) {
-            throw new IllegalArgumentException("잔액이 부족합니다.");
-        }
-
-        if (balance > MAX_BALANCE) {
-            throw new IllegalArgumentException("최대 잔액은 1,000,000원입니다.");
-        }
+    public User(Long id, String name, Balance balance) {
+        this.id = id;
+        this.name = name;
+        this.balance = balance;
     }
 
-    public static User empty(long id, String name) {
-        return new User(id, name, 0);
+    public void charge(int amount) {
+        this.balance = this.balance.add(amount);
     }
 
-    public int addBalance(int amount) {
-        int addedBalance = balance + amount;
-        validateBalance(addedBalance);
-
-        return addedBalance;
+    public void withdraw(int amount) {
+        this.balance = this.balance.subtract(amount);
     }
 
-    private void validateBalance(int balance) {
-        if (balance > MAX_BALANCE) {
-            throw new IllegalArgumentException("최대 잔액은 1,000,000원입니다.");
-        }
+    public boolean canAfford(int amount) {
+        return this.balance.isEnough(amount);
+    }
+
+    public int getBalanceAmount() {
+        return this.balance.amount();
     }
 
     public UserResponse.User translateUser(User user) {
-        return new UserResponse.User(user.id(), user.name(), user.balance());
+        return new UserResponse.User(user.id, user.name, user.balance.amount());
     }
 
 }

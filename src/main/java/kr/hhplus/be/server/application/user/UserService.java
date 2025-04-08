@@ -1,6 +1,6 @@
 package kr.hhplus.be.server.application.user;
 
-import kr.hhplus.be.server.domain.common.Amount;
+import kr.hhplus.be.server.domain.user.Balance;
 import kr.hhplus.be.server.domain.user.User;
 import kr.hhplus.be.server.infrastructure.user.UserRepository;
 import kr.hhplus.be.server.interfaces.user.UserResponse;
@@ -21,17 +21,14 @@ public class UserService {
             throw new IllegalArgumentException("유효하지 않는 사용자입니다.");
         }
 
-        // amount 값 유효성 체크
-        Amount chargeAmount = Amount.of(amount);
-        // 1) 0 초과인지
-        // 2) 충전 가능한 최대 금액인지
-        // 3) 충전 가능한 최소 금액인지
+        // 잔고 객체 생성
+        Balance balance = new Balance(amount);
 
         // 4) 충전 후 금액 체크
-        int addedBalance = findUser.addBalance(chargeAmount.getValue());
+        findUser.charge(balance.amount());
 
         // 잔액 충전
-        User user = userRepository.updateBalance(userId, addedBalance);
+        User user = userRepository.updateBalance(userId, findUser.getBalanceAmount());
 
         return user.translateUser(user);
     }
