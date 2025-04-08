@@ -8,6 +8,7 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
+import kr.hhplus.be.server.domain.user.Balance;
 import kr.hhplus.be.server.domain.user.User;
 import kr.hhplus.be.server.infrastructure.user.UserRepository;
 import kr.hhplus.be.server.interfaces.user.UserResponse;
@@ -34,17 +35,17 @@ class UserServiceTest {
     @ValueSource(ints = {1})
     void 사용자_잔액_충전_성공(int amount) {
         // given
-        User userA = new User(USER_ID, "userA", amount);
+        User userA = new User(USER_ID, "userA", new Balance(amount));
         given(userRepository.findById(USER_ID)).willReturn(userA);
-        int userABalance = userA.addBalance(amount);
-        given(userRepository.updateBalance(USER_ID, userABalance)).willReturn(new User(USER_ID, "userA", userABalance));
+        userA.charge(amount);
+        given(userRepository.updateBalance(USER_ID, userA.getBalanceAmount())).willReturn(new User(USER_ID, "userA", userA.getBalance()));
 
         // when
         UserResponse.User user = userService.chargeBalance(USER_ID, amount);
 
         // then
-        assertThat(user.id()).isEqualTo(userA.id());
-        assertThat(user.balance()).isEqualTo(userABalance);
+        assertThat(user.id()).isEqualTo(userA.getId());
+        assertThat(user.balance()).isEqualTo(userA.getBalanceAmount());
         verify(userRepository).findById(USER_ID);
     }
 
