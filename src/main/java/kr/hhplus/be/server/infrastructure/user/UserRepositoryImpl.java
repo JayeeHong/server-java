@@ -16,4 +16,9 @@ public class UserRepositoryImpl implements UserRepository {
     public User updateBalance(long userId, int amount) {
         return new User((userId), "userA", new Balance(amount));
     }
+
+    @Override
+    public User save(User user) {
+        return null;
+    }
 }

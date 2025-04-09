@@ -8,4 +8,6 @@ public interface UserRepository {
 
     User updateBalance(long userId, int amount);
 
+    User save(User user);
+
 }
