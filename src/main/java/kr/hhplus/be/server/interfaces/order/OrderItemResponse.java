@@ -6,9 +6,9 @@ import io.swagger.v3.oas.annotations.media.Schema;
 public class OrderItemResponse {
     public record OrderItem(
         @Schema(description = "주문 상품 ID", example = "1")
-        long id,
+        Long id,
         @Schema(description = "주문 ID", example = "1")
-        long orderId,
+        Long orderId,
         @Schema(description = "상품 ID", example = "1")
         long productId,
         @Schema(description = "주문 상품 갯수", example = "10")

@@ -19,6 +19,8 @@ public class OrderRequest {
         @Schema(description = "주문 상품 목록")
         @ArraySchema(schema = @Schema(implementation = OrderItemRequest.CreateOrderItem.class))
         List<OrderItemRequest.CreateOrderItem> orderItems,
+        @Schema(description = "사용자 쿠폰 ID")
+        Long userCouponId,
         @Schema(description = "생성시간", example = "1743682862736")
         long createdAt,
         @Schema(description = "수정시간", example = "1743682862736")

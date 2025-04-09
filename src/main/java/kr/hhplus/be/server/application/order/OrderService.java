@@ -1,10 +1,14 @@
 package kr.hhplus.be.server.application.order;
 
 import java.util.List;
+import java.util.stream.Collectors;
+import kr.hhplus.be.server.domain.coupon.Coupon;
+import kr.hhplus.be.server.domain.coupon.CouponType;
+import kr.hhplus.be.server.domain.order.Order;
+import kr.hhplus.be.server.domain.order.OrderItem;
+import kr.hhplus.be.server.domain.product.Product;
+import kr.hhplus.be.server.domain.user.User;
 import kr.hhplus.be.server.infrastructure.order.OrderRepository;
-import kr.hhplus.be.server.interfaces.order.OrderItemResponse.OrderItem;
-import kr.hhplus.be.server.interfaces.order.OrderRequest.CreateOrder;
-import kr.hhplus.be.server.interfaces.order.OrderResponse;
 import kr.hhplus.be.server.domain.order.OrderStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -15,43 +19,36 @@ public class OrderService {
 
     private final OrderRepository orderRepository;
 
-    public OrderResponse.Order registOrder(long userId, CreateOrder createOrder) {
-
-        // 사용자 식별자 유효성 체크
-
-        // 주문할 금액 유효성 체크 (주문금액, 주문상품금액)
-
-        // 사용자의 잔액 유효성 체크
-
-        // 결제 처리 (사용자의 잔액 차감)
-
-        // 주문 등록
-
-        // 결제 성공 후 외부 데이터 플랫폼에 전송
-
-        return new OrderResponse.Order(
-            1L, 1L, 1000, OrderStatus.PAY_COMPLETE,
-            List.of(new OrderItem(1L, 1L, 1L, 1, 1000)),
-            System.currentTimeMillis(),
-            System.currentTimeMillis()
-        );
+    public int calculateTotalAmount(List<Product> products) {
+        return products.stream()
+            .mapToInt(p -> p.getPrice().value())
+            .sum();
     }
 
-    // TODO 아래 기능을 나눠서 메소드 만들기
-    // 주문 요청
-    public OrderResponse.Order requestOrder(long userId, CreateOrder createOrder) {
-
-        return new OrderResponse.Order(
-            1L, 1L, 1000, OrderStatus.PAY_COMPLETE,
-            List.of(new OrderItem(1L, 1L, 1L, 1, 1000)),
-            System.currentTimeMillis(),
-            System.currentTimeMillis()
-        );
+    public int applyCouponDiscount(int totalAmount, Coupon coupon) {
+        if (coupon == null) return totalAmount;
+        if (coupon.getType() == CouponType.PERCENTAGE) {
+            return totalAmount - (totalAmount * coupon.getDiscount().getAmount() / 100);
+        } else {
+            return totalAmount - coupon.getDiscount().getAmount();
+        }
     }
 
-    // 결제 금액 계산 (잔액 유무 및 적용)
-    public void calculateOrderAmt(long userId, CreateOrder createOrder) {
-
+    public void validateUserBalance(User user, int finalAmount) {
+        if (user.getBalance().amount() < finalAmount) {
+            throw new IllegalStateException("사용자의 잔액이 부족합니다.");
+        }
     }
 
+    public void deductUserBalance(User user, int amount) {
+        user.deductBalance(amount);
+    }
+
+    public Order createOrder(User user, List<Product> products, Coupon coupon, int finalAmount) {
+        List<OrderItem> orderItems = products.stream()
+            .map(p -> new OrderItem(null, null, p.getId(), 1, p.getPrice().value()))
+            .collect(Collectors.toList());
+
+        return new Order(null, user.getId(), finalAmount, OrderStatus.PAY_COMPLETE, orderItems, System.currentTimeMillis(), System.currentTimeMillis());
+    }
 }
