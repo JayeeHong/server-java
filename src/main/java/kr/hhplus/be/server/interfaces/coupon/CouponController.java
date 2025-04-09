@@ -2,7 +2,6 @@ package kr.hhplus.be.server.interfaces.coupon;
 
 import java.util.List;
 import kr.hhplus.be.server.application.coupon.CouponService;
-import kr.hhplus.be.server.domain.coupon.UserCoupon;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;

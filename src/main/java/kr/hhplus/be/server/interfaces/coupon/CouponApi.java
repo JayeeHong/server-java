@@ -10,7 +10,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
-import kr.hhplus.be.server.domain.coupon.UserCoupon;
 import org.springframework.web.ErrorResponse;
 
 @Tag(name = "Coupon", description = "쿠폰 관련 API")
@@ -23,7 +22,7 @@ public interface CouponApi {
     })
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "정상 응답",
-            content = @Content(schema = @Schema(implementation = UserCoupon.class))),
+            content = @Content(schema = @Schema(implementation = CouponResponse.UserCoupon.class))),
         @ApiResponse(responseCode = "500", description = "서버 에러",
             content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
@@ -33,7 +32,7 @@ public interface CouponApi {
     @Parameter(name = "userId", description = "사용자 ID", required = true)
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "정상 응답",
-            content = @Content(array = @ArraySchema(schema = @Schema(implementation = UserCoupon.class)))),
+            content = @Content(array = @ArraySchema(schema = @Schema(implementation = CouponResponse.UserCoupon.class)))),
         @ApiResponse(responseCode = "500", description = "서버 에러",
             content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
