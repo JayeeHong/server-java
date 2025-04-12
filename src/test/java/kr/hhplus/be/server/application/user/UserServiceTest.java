@@ -1,76 +1,85 @@
+
 package kr.hhplus.be.server.application.user;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-
-import kr.hhplus.be.server.domain.user.Balance;
-import kr.hhplus.be.server.domain.user.User;
+import kr.hhplus.be.server.domain.user.*;
+import kr.hhplus.be.server.infrastructure.balance.BalanceRepository;
 import kr.hhplus.be.server.infrastructure.user.UserRepository;
 import kr.hhplus.be.server.interfaces.user.UserResponse;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.ValueSource;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
 
-@ExtendWith(MockitoExtension.class)
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
+
 class UserServiceTest {
 
-    @Mock
-    private UserRepository userRepository;
+    UserRepository userRepository = mock(UserRepository.class);
+    BalanceRepository balanceRepository = mock(BalanceRepository.class);
+    BalanceCalculator balanceCalculator = mock(BalanceCalculator.class);
 
-    @InjectMocks
-    private UserService userService;
+    UserService userService = new UserService(userRepository, balanceRepository, balanceCalculator);
 
-    private final long USER_ID = 1L;
-
-    @ParameterizedTest
-    @ValueSource(ints = {1})
-    void 사용자_잔액_충전_성공(int amount) {
+    @Test
+    @DisplayName("사용자가 금액을 충전하면 충전 이력이 저장되고 현재 잔액이 계산된다")
+    void chargeBalance_success() {
         // given
-        User userA = new User(USER_ID, "userA", new Balance(amount));
-        given(userRepository.findById(USER_ID)).willReturn(userA);
-        userA.charge(amount);
-        given(userRepository.updateBalance(USER_ID, userA.getBalanceAmount())).willReturn(new User(USER_ID, "userA", userA.getBalance()));
+        Long userId = 1L;
+        int amount = 1000;
+        User user = User.of(userId, "홍길동");
+        when(userRepository.findOrThrow(userId)).thenReturn(user);
+        when(balanceCalculator.calculate(user)).thenReturn(5000);
 
         // when
-        UserResponse.User user = userService.chargeBalance(USER_ID, amount);
+        UserResponse.Balance result = userService.chargeBalance(userId, amount);
 
         // then
-        assertThat(user.id()).isEqualTo(userA.getId());
-        assertThat(user.balance()).isEqualTo(userA.getBalanceAmount());
-        verify(userRepository).findById(USER_ID);
+        assertEquals(userId, result.getUserId());
+        assertEquals("홍길동", result.getName());
+        assertEquals(5000, result.getBalance());
+        verify(balanceRepository, times(1)).save(any(Balance.class));
     }
 
     @Test
-    void id로_사용자를_찾을_수_없다면_잔액_충전_실패한다() {
+    @DisplayName("사용자의 현재 잔액을 조회할 수 있다")
+    void getUserBalance_success() {
         // given
-        given(userRepository.findById(USER_ID)).willReturn(null);
-
-        // when, then
-        assertThatThrownBy(() -> userService.chargeBalance(USER_ID, 1))
-            .isInstanceOf(IllegalArgumentException.class)
-            .hasMessage("유효하지 않는 사용자입니다.");
-
-        verify(userRepository, never()).updateBalance(anyLong(), anyInt());
-    }
-
-    @Test
-    void id로_사용자_조회시_사용자를_찾을_수_없다면_조회_실패() {
-        // given
-        given(userRepository.findById(USER_ID)).willReturn(null);
+        Long userId = 1L;
+        User user = User.of(userId, "홍길동");
+        when(userRepository.findOrThrow(userId)).thenReturn(user);
+        when(balanceCalculator.calculate(user)).thenReturn(4000);
 
         // when
-        assertThatThrownBy(() -> userService.getUser(USER_ID))
-            .isInstanceOf(IllegalArgumentException.class)
-            .hasMessage("유효하지 않는 사용자입니다.");
+        UserResponse.Balance result = userService.getUserBalance(userId);
+
+        // then
+        assertEquals(userId, result.getUserId());
+        assertEquals("홍길동", result.getName());
+        assertEquals(4000, result.getBalance());
+    }
+
+    @Test
+    @DisplayName("존재하지 않는 사용자에게 잔액 충전 시 예외가 발생한다")
+    void chargeBalance_invalidUser_throwsException() {
+        // given
+        Long invalidUserId = 999L;
+        when(userRepository.findOrThrow(invalidUserId))
+            .thenThrow(new IllegalArgumentException("존재하지 않는 사용자입니다."));
+
+        // when & then
+        assertThrows(IllegalArgumentException.class, () ->
+            userService.chargeBalance(invalidUserId, 1000)
+        );
+    }
+
+    @Test
+    @DisplayName("존재하지 않는 사용자의 잔액 조회 시 예외가 발생한다")
+    void getBalance_invalidUser_throwsException() {
+        Long invalidUserId = 999L;
+        when(userRepository.findOrThrow(invalidUserId))
+            .thenThrow(new IllegalArgumentException("존재하지 않는 사용자입니다."));
+
+        assertThrows(IllegalArgumentException.class,
+            () -> userService.getUserBalance(invalidUserId));
     }
 
 }

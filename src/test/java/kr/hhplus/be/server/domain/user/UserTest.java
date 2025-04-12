@@ -1,41 +1,47 @@
 package kr.hhplus.be.server.domain.user;
 
-import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
+
+import java.util.List;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 
 class UserTest {
 
     @Test
-    void 유저_생성_및_초기_잔고_확인() {
-        User user = new User(1L, "홍길동", new Balance(10000));
-        assertEquals(10000, user.getBalanceAmount());
-        assertEquals("홍길동", user.getName());
+    @DisplayName("사용자가 금액을 충전하면 CHARGE 트랜잭션 생성")
+    void chargeBalance_createsChargeTransaction() {
+        User user = User.of(1L, "홍길동");
+        Balance balance = user.charge(1000);
+
+        assertEquals(1L, balance.userId());
+        assertEquals(1000, balance.amount());
+        assertEquals(TransactionType.CHARGE, balance.transactionType());
+        assertNotNull(balance.createdAt());
     }
 
     @Test
-    void 유저_잔고_충전_charge_정상작동() {
-        User user = new User(1L, "홍길동", new Balance(10000));
-        user.charge(5000);
-        assertEquals(15000, user.getBalanceAmount());
+    @DisplayName("사용자가 금액을 차감하면 PAYMENT 트랜잭션 생성")
+    void deductBalance_createsPaymentTransaction() {
+        User user = User.of(1L, "홍길동");
+        Balance balance = user.deduct(500);
+
+        assertEquals(1L, balance.userId());
+        assertEquals(-500, balance.amount());
+        assertEquals(TransactionType.PAYMENT, balance.transactionType());
     }
 
     @Test
-    void 유저_잔고_차감_withdraw_정상작동() {
-        User user = new User(1L, "홍길동", new Balance(10000));
-        user.withdraw(4000);
-        assertEquals(6000, user.getBalanceAmount());
-    }
+    @DisplayName("사용자는 잔액 이력을 기반으로 총 잔액을 계산할 수 있다")
+    void calculateBalance_sumsAllTransactionsCorrectly() {
+        User user = User.of(1L, "홍길동");
+        List<Balance> histories = List.of(
+            Balance.charge(1L, 1000),
+            Balance.deduct(1L, 200),
+            Balance.charge(1L, 300)
+        );
 
-    @Test
-    void 유저_잔고_차감_withdraw_부족시_예외() {
-        User user = new User(1L, "홍길동", new Balance(3000));
-        assertThrows(IllegalArgumentException.class, () -> user.withdraw(5000));
-    }
-
-    @Test
-    void 유저_결제가능성_canAfford_검사() {
-        User user = new User(1L, "홍길동", new Balance(7000));
-        assertTrue(user.canAfford(5000));
-        assertFalse(user.canAfford(8000));
+        int result = user.calculateBalance(histories);
+        assertEquals(1100, result);
     }
 }
