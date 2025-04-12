@@ -1,24 +1,5 @@
 package kr.hhplus.be.server.application.order;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
-import kr.hhplus.be.server.domain.coupon.Coupon;
-import kr.hhplus.be.server.domain.user.User;
-import kr.hhplus.be.server.domain.user.UserCoupon;
-import kr.hhplus.be.server.domain.product.Product;
-import kr.hhplus.be.server.domain.order.Order;
-import kr.hhplus.be.server.infrastructure.coupon.CouponRepository;
-import kr.hhplus.be.server.infrastructure.order.OrderRepository;
-import kr.hhplus.be.server.infrastructure.product.ProductRepository;
-import kr.hhplus.be.server.infrastructure.user.UserCouponRepository;
-import kr.hhplus.be.server.infrastructure.user.UserRepository;
-import kr.hhplus.be.server.interfaces.order.OrderRequest.CreateOrder;
-import kr.hhplus.be.server.interfaces.order.OrderResponse;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
-
 //@Component
 //@RequiredArgsConstructor
 //public class OrderFacade {

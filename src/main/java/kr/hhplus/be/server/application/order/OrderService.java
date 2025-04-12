@@ -1,18 +1,5 @@
 package kr.hhplus.be.server.application.order;
 
-import java.util.List;
-import java.util.stream.Collectors;
-import kr.hhplus.be.server.domain.coupon.Coupon;
-import kr.hhplus.be.server.domain.coupon.CouponType;
-import kr.hhplus.be.server.domain.order.Order;
-import kr.hhplus.be.server.domain.order.OrderItem;
-import kr.hhplus.be.server.domain.product.Product;
-import kr.hhplus.be.server.domain.user.User;
-import kr.hhplus.be.server.infrastructure.order.OrderRepository;
-import kr.hhplus.be.server.domain.order.OrderStatus;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
-
 //@Service
 //@RequiredArgsConstructor
 //public class OrderService {
