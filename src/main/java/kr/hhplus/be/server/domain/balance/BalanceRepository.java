@@ -1,7 +1,6 @@
-package kr.hhplus.be.server.infrastructure.balance;
+package kr.hhplus.be.server.domain.balance;
 
 import java.util.List;
-import kr.hhplus.be.server.domain.user.Balance;
 
 public interface BalanceRepository {
 

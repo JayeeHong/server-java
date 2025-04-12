@@ -1,6 +1,7 @@
-package kr.hhplus.be.server.domain.user;
+package kr.hhplus.be.server.domain.balance;
 
 import java.time.LocalDateTime;
+import kr.hhplus.be.server.domain.user.TransactionType;
 import lombok.Getter;
 
 @Getter
