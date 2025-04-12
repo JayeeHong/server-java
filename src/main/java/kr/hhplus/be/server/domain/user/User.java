@@ -1,52 +1,52 @@
 package kr.hhplus.be.server.domain.user;
 
+import java.util.List;
 import kr.hhplus.be.server.interfaces.user.UserResponse;
 import lombok.Getter;
 
-@Getter
 public class User {
 
-    private final long id;
+    private final Long id;
     private final String name;
-    private Balance balance;
 
-    public User(Long id) {
-        this.id = id;
-        this.name = "";
-        this.balance = new Balance(0);
-    }
-
-    public User(Long id, String name, Balance balance) {
+    private User(Long id, String name) {
         this.id = id;
         this.name = name;
-        this.balance = balance;
     }
 
-    public void charge(int amount) {
-        this.balance = this.balance.add(amount);
+    public static User of(Long id, String name) {
+        return new User(id, name);
     }
 
-    public void withdraw(int amount) {
-        this.balance = this.balance.subtract(amount);
+    public Long id() {
+        return id;
     }
 
-    public boolean canAfford(int amount) {
-        return this.balance.isEnough(amount);
+    public String name() {
+        return name;
     }
 
-    public int getBalanceAmount() {
-        return this.balance.amount();
+    /**
+     * 잔액 충전 내역 생성
+     */
+    public Balance charge(int amount) {
+        return Balance.charge(this.id, amount);
     }
 
-    public void deductBalance(int amount) {
-        if (!canAfford(amount)) {
-            throw new IllegalStateException("잔액이 부족합니다.");
-        }
-        withdraw(amount);
+    /**
+     * 잔액 차감 내역 생성
+     */
+    public Balance deduct(int amount) {
+        return Balance.deduct(this.id, amount);
     }
 
-    public UserResponse.User translateUser(User user) {
-        return new UserResponse.User(user.id, user.name, user.balance.amount());
+    /**
+     * 이력 기준 총 잔액 계산
+     */
+    public int calculateBalance(List<Balance> histories) {
+        return histories.stream()
+            .mapToInt(Balance::amount)
+            .sum();
     }
 
 }
