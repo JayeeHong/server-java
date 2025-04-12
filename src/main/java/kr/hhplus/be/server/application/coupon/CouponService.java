@@ -60,4 +60,28 @@ public class CouponService {
                 .map(CouponResponse.UserCoupon::from)
                 .toList();
     }
+
+    /**
+     * 쿠폰 사용
+     */
+    public Coupon validateAndUseCoupon(Long userId, Long couponId) {
+        User user = userRepository.findById(userId);
+        if (user == null) {
+            throw new IllegalArgumentException("유효하지 않은 사용자입니다.");
+        }
+
+        Coupon coupon = couponRepository.findById(couponId);
+        if (coupon == null) {
+            throw new IllegalArgumentException("유효하지 않은 쿠폰입니다.");
+        }
+
+        Coupon issued = coupon.issue(); // 재고 차감
+        couponRepository.save(issued); // 반영
+
+        UserCoupon userCoupon = UserCoupon.issue(userId, issued, LocalDateTime.now());
+        userCouponRepository.save(userCoupon); // 사용자 쿠폰 저장
+
+        return issued;
+    }
+
 }

@@ -1,48 +1,51 @@
 package kr.hhplus.be.server.domain.order;
 
+import java.time.LocalDateTime;
 import java.util.List;
-import java.util.stream.Collectors;
-import kr.hhplus.be.server.interfaces.order.OrderItemResponse;
-import kr.hhplus.be.server.interfaces.order.OrderResponse;
 
 public class Order {
-    private Long id;
-    private Long userId;
-    private int totalPrice;
-    private OrderStatus status;
-    private List<OrderItem> orderItems;
-    private long createdAt;
-    private long updatedAt;
 
-    public Order(Long id, long userId, int totalPrice, OrderStatus status, List<OrderItem> orderItems, long createdAt, long updatedAt) {
+    private final Long id;
+    private final Long userId;
+    private final int totalAmount;
+    private final OrderStatus orderStatus;
+    private final List<OrderItem> orderItems;
+    private final LocalDateTime orderedAt;
+
+    private Order(Long id, Long userId, int totalAmount, List<OrderItem> orderItems) {
         this.id = id;
         this.userId = userId;
-        this.totalPrice = totalPrice;
-        this.status = status;
+        this.totalAmount = totalAmount;
+        this.orderStatus = OrderStatus.WAIT;
         this.orderItems = orderItems;
-        this.createdAt = createdAt;
-        this.updatedAt = updatedAt;
+        this.orderedAt = LocalDateTime.now();
     }
 
-    public static Order create(long userId, int totalPrice, List<OrderItem> orderItems, OrderStatus status) {
-        long now = System.currentTimeMillis();
-        return new Order(0L, userId, totalPrice, status, orderItems, now, now);
+    public static Order of(Long id, Long userId, int totalAmount, List<OrderItem> orderItems) {
+        return new Order(id, userId, totalAmount, orderItems);
     }
 
-    public OrderResponse.Order toResponse() {
-        List<OrderItemResponse.OrderItem> responseItems = orderItems.stream()
-            .map(OrderItem::toResponse)
-            .collect(Collectors.toList());
-
-        return new OrderResponse.Order(
-            id,
-            userId,
-            totalPrice,
-            status,
-            responseItems,
-            createdAt,
-            updatedAt
-        );
+    public Long id() {
+        return id;
     }
 
+    public Long userId() {
+        return userId;
+    }
+
+    public int totalAmount() {
+        return totalAmount;
+    }
+
+    public OrderStatus orderStatus() {
+        return orderStatus;
+    }
+
+    public List<OrderItem> orderItems() {
+        return orderItems;
+    }
+
+    public LocalDateTime orderedAt() {
+        return orderedAt;
+    }
 }

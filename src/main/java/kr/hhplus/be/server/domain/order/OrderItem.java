@@ -1,23 +1,36 @@
 package kr.hhplus.be.server.domain.order;
 
-import kr.hhplus.be.server.interfaces.order.OrderItemResponse;
-
 public class OrderItem {
-    private Long id;
-    private Long orderId;
-    private Long productId;
-    private int quantity;
-    private int price;
 
-    public OrderItem(Long id, Long orderId, Long productId, int quantity, int price) {
+    private final Long id;
+    private final Long orderId;
+    private final Long productId;
+    private final int quantity;
+
+    private OrderItem(Long id, Long orderId, Long productId, int quantity) {
         this.id = id;
         this.orderId = orderId;
         this.productId = productId;
         this.quantity = quantity;
-        this.price = price;
     }
 
-    public OrderItemResponse.OrderItem toResponse() {
-        return new OrderItemResponse.OrderItem(id, orderId, productId, quantity, price);
+    public static OrderItem of(Long id, Long orderId, Long productId, int quantity) {
+        return new OrderItem(id, orderId, productId, quantity);
+    }
+
+    public Long id() {
+        return id;
+    }
+
+    public Long orderId() {
+        return orderId;
+    }
+
+    public Long productId() {
+        return productId;
+    }
+
+    public int quantity() {
+        return quantity;
     }
 }

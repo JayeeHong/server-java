@@ -1,30 +1,47 @@
 package kr.hhplus.be.server.interfaces.order;
 
-import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
-import java.util.List;
-import kr.hhplus.be.server.domain.order.OrderItem;
-import kr.hhplus.be.server.domain.order.OrderStatus;
+import kr.hhplus.be.server.domain.order.Order;
+import kr.hhplus.be.server.domain.coupon.Coupon;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
-@Schema(description = "주문 정보")
+import java.time.LocalDateTime;
+
 public class OrderResponse {
-    public record Order(
-        @Schema(description = "주문 ID", example = "1")
-        long id,
-        @Schema(description = "사용자 ID", example = "1")
-        long userId,
-        @Schema(description = "주문 총 금액", example = "1000")
-        int totalPrice,
-        @Schema(description = "주문 상태", example = "PAY_COMPLETE", implementation = OrderStatus.class)
-        OrderStatus status,
-        @Schema(description = "주문 상품 목록")
-        @ArraySchema(schema = @Schema(implementation = OrderItem.class))
-        List<OrderItemResponse.OrderItem> orderItems,
-        @Schema(description = "생성시간", example = "1743682862736")
-        long createdAt,
-        @Schema(description = "수정시간", example = "1743682862736")
-        long updatedAt
-    ) {
 
+    @Getter
+    @RequiredArgsConstructor
+    @Schema(description = "주문 응답")
+    public static class Summary {
+
+        @Schema(description = "주문 ID", example = "101")
+        private final Long orderId;
+
+        @Schema(description = "사용자 ID", example = "1")
+        private final Long userId;
+
+        @Schema(description = "총 결제 금액", example = "9000")
+        private final int totalAmount;
+
+        @Schema(description = "사용된 쿠폰 ID", example = "10")
+        private final Long usedCouponId;
+
+        @Schema(description = "주문 상태", example = "WAIT")
+        private final String status;
+
+        @Schema(description = "주문 일시", example = "2024-04-13T18:00:00")
+        private final LocalDateTime orderedAt;
+
+        public static Summary from(Order order, Coupon usedCoupon) {
+            return new Summary(
+                order.id(),
+                order.userId(),
+                order.totalAmount(),
+                usedCoupon != null ? usedCoupon.id() : null,
+                order.orderStatus().name(),
+                order.orderedAt()
+            );
+        }
     }
 }
