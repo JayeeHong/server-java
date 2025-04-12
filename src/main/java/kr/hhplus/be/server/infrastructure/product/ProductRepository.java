@@ -5,13 +5,13 @@ import kr.hhplus.be.server.domain.product.Product;
 
 public interface ProductRepository {
 
+    /**
+     * 전체 상품 목록 조회
+     */
     List<Product> findAll();
 
-    Product findById(long productId);
-
-    List<Product> findTop5();
-
-    Product updateStock(long productId, int stock);
-
-    Product updatePrice(long productId, int price);
+    /**
+     * 상품 ID로 단건 조회
+     */
+    Product findById(Long productId);
 }
