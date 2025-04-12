@@ -11,7 +11,7 @@ public class ProductResponse {
     @Getter
     @RequiredArgsConstructor
     @Schema(description = "상품 응답 DTO")
-    public static class Product {
+    public static class ProductDto {
 
         @Schema(description = "상품 ID", example = "1")
         private final Long id;
@@ -26,13 +26,13 @@ public class ProductResponse {
         private final int stock;
     }
 
-    public static List<Product> translate(List<kr.hhplus.be.server.domain.product.Product> products) {
+    public static List<ProductDto> translate(List<kr.hhplus.be.server.domain.product.Product> products) {
         return products.stream()
-            .map(p -> new Product(p.id(), p.name(), p.price(), p.stock()))
+            .map(p -> new ProductDto(p.id(), p.name(), p.price(), p.stock()))
             .toList();
     }
 
-    public static Product from(kr.hhplus.be.server.domain.product.Product product) {
-        return new Product(product.id(), product.name(), product.price(), product.stock());
+    public static ProductDto from(kr.hhplus.be.server.domain.product.Product product) {
+        return new ProductDto(product.id(), product.name(), product.price(), product.stock());
     }
 }

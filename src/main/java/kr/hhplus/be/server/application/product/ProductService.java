@@ -16,7 +16,7 @@ public class ProductService {
     /**
      * 전체 상품 목록을 조회한다.
      */
-    public List<ProductResponse.Product> getAllProducts() {
+    public List<ProductDto> getAllProducts() {
         return ProductResponse.translate(productRepository.findAll());
     }
 }

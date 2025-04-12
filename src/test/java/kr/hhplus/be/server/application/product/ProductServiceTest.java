@@ -1,8 +1,8 @@
 package kr.hhplus.be.server.application.product;
 
 import kr.hhplus.be.server.domain.product.Product;
-import kr.hhplus.be.server.infrastructure.product.ProductRepository;
-import kr.hhplus.be.server.interfaces.product.ProductResponse;
+import kr.hhplus.be.server.domain.product.ProductRepository;
+import kr.hhplus.be.server.interfaces.product.ProductResponse.ProductDto;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -25,7 +25,7 @@ class ProductServiceTest {
         );
         when(productRepository.findAll()).thenReturn(products);
 
-        List<ProductResponse.Product> result = productService.getAllProducts();
+        List<ProductDto> result = productService.getAllProducts();
 
         assertEquals(2, result.size());
         assertEquals("상품A", result.get(0).getName());
@@ -37,7 +37,7 @@ class ProductServiceTest {
     void getAllProducts_emptyResult() {
         when(productRepository.findAll()).thenReturn(List.of());
 
-        List<ProductResponse.Product> result = productService.getAllProducts();
+        List<ProductDto> result = productService.getAllProducts();
 
         assertTrue(result.isEmpty());
     }
