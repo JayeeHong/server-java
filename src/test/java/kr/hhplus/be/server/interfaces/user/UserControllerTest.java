@@ -10,6 +10,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -58,4 +59,21 @@ class UserControllerTest {
             .andExpect(jsonPath("$.name").value("홍길동"))
             .andExpect(jsonPath("$.balance").value(4000));
     }
+
+    @Test
+    @DisplayName("존재하지 않는 사용자에게 충전 시 400 에러를 반환한다")
+    void chargeBalance_userNotFound_returns400() throws Exception {
+        Long invalidUserId = 999L;
+        UserRequest.Charge request = new UserRequest.Charge(1000);
+
+        when(userService.chargeBalance(eq(invalidUserId), eq(request.getAmount())))
+            .thenThrow(new IllegalArgumentException("존재하지 않는 사용자입니다."));
+
+        mockMvc.perform(post("/api/v1/user/{userId}/charge", invalidUserId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+            .andExpect(status().isBadRequest())
+            .andExpect(content().string(org.hamcrest.Matchers.containsString("존재하지 않는 사용자")));
+    }
+
 }
