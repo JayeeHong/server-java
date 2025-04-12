@@ -1,8 +1,10 @@
 
 package kr.hhplus.be.server.application.user;
 
+import java.util.List;
+import kr.hhplus.be.server.domain.balance.Balance;
 import kr.hhplus.be.server.domain.user.*;
-import kr.hhplus.be.server.infrastructure.balance.BalanceRepository;
+import kr.hhplus.be.server.domain.balance.BalanceRepository;
 import kr.hhplus.be.server.domain.user.UserRepository;
 import kr.hhplus.be.server.interfaces.user.UserResponse;
 import org.junit.jupiter.api.DisplayName;
@@ -26,8 +28,13 @@ class UserServiceTest {
         Long userId = 1L;
         int amount = 1000;
         User user = User.of(userId, "홍길동");
+        List<Balance> history = List.of(
+            Balance.charge(userId, 3000),
+            Balance.charge(userId, 2000)
+        );
+
         when(userRepository.findOrThrow(userId)).thenReturn(user);
-        when(balanceCalculator.calculate(user)).thenReturn(5000);
+        when(balanceRepository.findAllByUserId(userId)).thenReturn(history);
 
         // when
         UserResponse.Balance result = userService.chargeBalance(userId, amount);
@@ -45,8 +52,13 @@ class UserServiceTest {
         // given
         Long userId = 1L;
         User user = User.of(userId, "홍길동");
+        List<Balance> history = List.of(
+            Balance.charge(userId, 3000),
+            Balance.deduct(userId, 1000)
+        );
+
         when(userRepository.findOrThrow(userId)).thenReturn(user);
-        when(balanceCalculator.calculate(user)).thenReturn(4000);
+        when(balanceRepository.findAllByUserId(userId)).thenReturn(history);
 
         // when
         UserResponse.Balance result = userService.getUserBalance(userId);
