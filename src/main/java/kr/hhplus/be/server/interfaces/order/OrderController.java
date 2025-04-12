@@ -21,6 +21,7 @@ public class OrderController implements OrderApi {
     @Override
     @PostMapping("/{userId}")
     public OrderResponse.Order createOrder(@PathVariable long userId, @RequestBody CreateOrder createOrder) {
-        return orderFacade.registOrder(userId, createOrder);
+//        return orderFacade.placeOrder(userId, createOrder);
+        return null;
     }
 }
