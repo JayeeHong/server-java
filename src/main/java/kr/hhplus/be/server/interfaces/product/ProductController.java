@@ -1,6 +1,7 @@
 package kr.hhplus.be.server.interfaces.product;
 
 import kr.hhplus.be.server.application.product.ProductService;
+import kr.hhplus.be.server.interfaces.product.ProductResponse.ProductDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -15,7 +16,7 @@ public class ProductController implements ProductApi {
 
     @Override
     @GetMapping
-    public List<ProductResponse.Product> getAllProducts() {
+    public List<ProductDto> getAllProducts() {
         return productService.getAllProducts();
     }
 }
