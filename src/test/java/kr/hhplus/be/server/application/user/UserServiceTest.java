@@ -3,7 +3,7 @@ package kr.hhplus.be.server.application.user;
 
 import kr.hhplus.be.server.domain.user.*;
 import kr.hhplus.be.server.infrastructure.balance.BalanceRepository;
-import kr.hhplus.be.server.infrastructure.user.UserRepository;
+import kr.hhplus.be.server.domain.user.UserRepository;
 import kr.hhplus.be.server.interfaces.user.UserResponse;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
