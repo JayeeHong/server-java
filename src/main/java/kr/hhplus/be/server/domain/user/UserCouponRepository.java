@@ -1,6 +1,6 @@
-package kr.hhplus.be.server.infrastructure.user;
+package kr.hhplus.be.server.domain.user;
 
-import kr.hhplus.be.server.domain.user.UserCoupon;
+import java.util.List;
 
 public interface UserCouponRepository {
 
@@ -8,4 +8,5 @@ public interface UserCouponRepository {
 
     UserCoupon findById(Long id);
 
+    List<UserCoupon> findAllByUserId(Long userId);
 }
