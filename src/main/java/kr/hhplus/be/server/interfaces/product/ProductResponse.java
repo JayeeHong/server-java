@@ -26,6 +26,18 @@ public class ProductResponse {
         private final int stock;
     }
 
+    @Schema(description = "인기 상품 정보")
+    public record HotProduct(
+        @Schema(description = "상품 ID", example = "1")
+        Long productId,
+
+        @Schema(description = "상품명", example = "콜드브루")
+        String productName,
+
+        @Schema(description = "총 판매 수량", example = "123")
+        int totalSold
+    ) {}
+
     public static List<ProductDto> translate(List<kr.hhplus.be.server.domain.product.Product> products) {
         return products.stream()
             .map(p -> new ProductDto(p.id(), p.name(), p.price(), p.stock()))
