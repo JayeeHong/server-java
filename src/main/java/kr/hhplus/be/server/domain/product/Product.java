@@ -1,49 +1,47 @@
 package kr.hhplus.be.server.domain.product;
 
-import java.util.List;
-import java.util.stream.Collectors;
-import kr.hhplus.be.server.domain.common.Price;
-import kr.hhplus.be.server.domain.common.Stock;
-import kr.hhplus.be.server.interfaces.product.ProductResponse;
-import lombok.Getter;
-
-@Getter
 public class Product {
-    private final long id;
-    private String name;
-    private Price price;
-    private Stock stock;
 
-    public Product(long id, String name, Price price, Stock stock) {
+    private final Long id;
+    private final String name;
+    private final int price;
+    private final int stock;
+
+    private Product(Long id, String name, int price, int stock) {
         this.id = id;
         this.name = name;
         this.price = price;
         this.stock = stock;
     }
 
-    public void purchase(int quantity) {
-        if (stock.quantity() < quantity) {
-            throw new IllegalArgumentException("구매 실패: 재고 부족");
+    public static Product of(Long id, String name, int price, int stock) {
+        return new Product(id, name, price, stock);
+    }
+
+    /**
+     * 재고를 감소시키는 메서드 (주문 시 사용)
+     * @throws IllegalStateException 재고 부족 시 예외
+     */
+    public Product decreaseStock(int quantity) {
+        if (this.stock < quantity) {
+            throw new IllegalStateException("재고가 부족합니다.");
         }
-        this.stock = stock.decrease(quantity);
+        return new Product(this.id, this.name, this.price, this.stock - quantity);
     }
 
-    public void restock(int quantity) {
-        this.stock = stock.increase(quantity);
+    public Long id() {
+        return id;
     }
 
-    public void changePrice(Price newPrice) {
-        this.price = newPrice;
+    public String name() {
+        return name;
     }
 
-    public ProductResponse.Product translateProduct() {
-        return new ProductResponse.Product(this.id, this.name, this.price.value(), this.stock.quantity());
+    public int price() {
+        return price;
     }
 
-    public static List<ProductResponse.Product> translateProducts(List<Product> products) {
-        return products.stream()
-            .map(Product::translateProduct)
-            .collect(Collectors.toList());
+    public int stock() {
+        return stock;
     }
-
 }

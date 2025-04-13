@@ -1,12 +1,17 @@
 package kr.hhplus.be.server.application.product;
 
-import java.util.List;
-import kr.hhplus.be.server.domain.common.Price;
+import java.util.ArrayList;
+import java.util.Map;
+import java.util.stream.Collectors;
 import kr.hhplus.be.server.domain.product.Product;
-import kr.hhplus.be.server.infrastructure.product.ProductRepository;
+import kr.hhplus.be.server.domain.product.ProductRepository;
+import kr.hhplus.be.server.interfaces.order.OrderRequest;
 import kr.hhplus.be.server.interfaces.product.ProductResponse;
+import kr.hhplus.be.server.interfaces.product.ProductResponse.ProductDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -14,77 +19,43 @@ public class ProductService {
 
     private final ProductRepository productRepository;
 
-    public List<ProductResponse.Product> getProducts() {
+    /**
+     * 전체 상품 목록을 조회한다.
+     */
+    public List<ProductDto> getAllProducts() {
+        return ProductResponse.translate(productRepository.findAll());
+    }
 
-        return productRepository.findAll().stream()
-            .map(Product::translateProduct)
-            .map(product -> new ProductResponse.Product(
-                product.id(), product.name(), product.price(), product.stock()
-            ))
+    public List<Product> getAndDecreaseStock(List<OrderRequest.Item> items) {
+        List<Long> productIds = items.stream()
+            .map(OrderRequest.Item::getProductId)
             .toList();
-    }
 
-    public ProductResponse.Product getProduct(long productId) {
+        List<Product> products = productRepository.findAllByIdIn(productIds);
 
-        Product findProduct = productRepository.findById(productId);
-        if (findProduct == null) {
-            throw new IllegalArgumentException("유효하지 않은 상품입니다.");
+        Map<Long, Integer> quantityMap = items.stream()
+            .collect(Collectors.toMap(OrderRequest.Item::getProductId, OrderRequest.Item::getQuantity));
+
+        List<Product> updatedProducts = new ArrayList<>();
+        for (Product product : products) {
+            int orderQty = quantityMap.get(product.id());
+            if (product.stock() < orderQty) {
+                throw new IllegalStateException("재고가 부족합니다.");
+            }
+            Product decreased = product.decreaseStock(orderQty);
+            productRepository.save(decreased);  // 즉시 반영
+            updatedProducts.add(decreased);
         }
 
-        return findProduct.translateProduct();
+        return updatedProducts;
     }
 
-    public ProductResponse.Product restockProduct(long productId, int quantity) {
-        // 상품 식별자 유효성 체크
-        Product findProduct = productRepository.findById(productId);
-        if (findProduct == null) {
-            throw new IllegalArgumentException("유효하지 않은 상품입니다.");
+    public int getPrice(Long productId) {
+        Product product = productRepository.findById(productId);
+        if (product == null) {
+            throw new IllegalArgumentException("존재하지 않는 상품입니다.");
         }
-
-        findProduct.restock(quantity);
-
-        Product product = productRepository.updateStock(productId, findProduct.getStock().quantity());
-
-        return product.translateProduct();
-    }
-
-    public ProductResponse.Product purchaseProduct(long productId, int quantity) {
-        // 상품 식별자 유효성 체크
-        Product findProduct = productRepository.findById(productId);
-        if (findProduct == null) {
-            throw new IllegalArgumentException("유효하지 않은 상품입니다.");
-        }
-
-        findProduct.purchase(quantity);
-
-        Product product = productRepository.updateStock(productId, findProduct.getStock().quantity());
-
-        return product.translateProduct();
-    }
-
-    public ProductResponse.Product changeProductPrice(long productId, int price) {
-        // 상품 식별자 유효성 체크
-        Product findProduct = productRepository.findById(productId);
-        if (findProduct == null) {
-            throw new IllegalArgumentException("유효하지 않은 상품입니다.");
-        }
-
-        findProduct.changePrice(new Price(price));
-
-        Product product = productRepository.updateStock(productId, findProduct.getStock().quantity());
-
-        return product.translateProduct();
-    }
-
-    public List<ProductResponse.Product> getTop5Products() {
-
-        // 전체 상품 중 상위 상품 5개 조회
-        return productRepository.findTop5().stream()
-            .map(Product::translateProduct)
-            .map(product -> new ProductResponse.Product(
-                product.id(), product.name(), product.price(), product.stock()
-            ))
-            .toList();
+        return product.price();
     }
 
 }

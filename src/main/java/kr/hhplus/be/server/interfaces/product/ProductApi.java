@@ -1,46 +1,14 @@
 package kr.hhplus.be.server.interfaces.product;
 
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.media.ArraySchema;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import java.util.List;
-import kr.hhplus.be.server.domain.product.Product;
-import org.springframework.web.ErrorResponse;
 
-@Tag(name = "Product", description = "상품 관련 API")
+import java.util.List;
+import kr.hhplus.be.server.interfaces.product.ProductResponse.ProductDto;
+
+@Tag(name = "상품 API", description = "상품 관련 API입니다.")
 public interface ProductApi {
 
-    @Operation(summary = "전체 상품 조회")
-    @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "정상 응답",
-            content = @Content(array = @ArraySchema(schema = @Schema(implementation = Product.class)))),
-        @ApiResponse(responseCode = "500", description = "서버 에러",
-            content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
-    })
-    List<ProductResponse.Product> getAllProducts();
-
-    @Operation(summary = "상품 상세 조회")
-    @Parameter(name = "productId", description = "상품 ID", required = true)
-    @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "정상 응답",
-            content = @Content(schema = @Schema(implementation = Product.class))),
-        @ApiResponse(responseCode = "500", description = "서버 에러",
-            content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
-    })
-    ProductResponse.Product getProduct(long productId);
-
-    @Operation(summary = "Top 5 인기 상품 조회")
-    @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "정상 응답",
-            content = @Content(array = @ArraySchema(schema = @Schema(implementation = Product.class)))),
-        @ApiResponse(responseCode = "500", description = "서버 에러",
-            content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
-    })
-    List<ProductResponse.Product> getTop5Products();
-
+    @Operation(summary = "전체 상품 목록 조회")
+    List<ProductDto> getAllProducts();
 }

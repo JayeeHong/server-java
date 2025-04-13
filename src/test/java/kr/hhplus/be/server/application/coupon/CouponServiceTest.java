@@ -1,107 +1,129 @@
+
 package kr.hhplus.be.server.application.coupon;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
-
 import kr.hhplus.be.server.domain.coupon.Coupon;
-import kr.hhplus.be.server.domain.coupon.CouponCode;
-import kr.hhplus.be.server.domain.coupon.CouponType;
-import kr.hhplus.be.server.domain.coupon.Discount;
+import kr.hhplus.be.server.domain.coupon.CouponRepository;
 import kr.hhplus.be.server.domain.user.User;
 import kr.hhplus.be.server.domain.user.UserCoupon;
-import kr.hhplus.be.server.infrastructure.coupon.CouponRepository;
-import kr.hhplus.be.server.infrastructure.user.UserCouponRepository;
-import kr.hhplus.be.server.infrastructure.user.UserRepository;
+import kr.hhplus.be.server.domain.user.UserCouponRepository;
+import kr.hhplus.be.server.domain.user.UserRepository;
 import kr.hhplus.be.server.interfaces.coupon.CouponResponse;
-
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+
+import java.time.LocalDateTime;
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 class CouponServiceTest {
 
-    @Mock
-    private UserRepository userRepository;
+    UserRepository userRepository = mock(UserRepository.class);
+    CouponRepository couponRepository = mock(CouponRepository.class);
+    UserCouponRepository userCouponRepository = mock(UserCouponRepository.class);
+    CouponService couponService = new CouponService(userRepository, couponRepository, userCouponRepository);
 
-    @Mock
-    private CouponRepository couponRepository;
+    @Test
+    @DisplayName("쿠폰 발급에 성공한다")
+    void issueCoupon_success() {
+        long userId = 1L;
+        long couponId = 10L;
 
-    @Mock
-    private UserCouponRepository userCouponRepository;
+        User user = mock(User.class);
+        Coupon coupon = Coupon.of(couponId, "1000원 할인", 1000, 10);
+        Coupon issued = coupon.issue();
+        UserCoupon savedUserCoupon = UserCoupon.issue(userId, issued, LocalDateTime.now());
 
-    @InjectMocks
-    private CouponService couponService;
+        when(userRepository.findById(userId)).thenReturn(user);
+        when(couponRepository.findById(couponId)).thenReturn(coupon);
+        when(couponRepository.save(any())).thenReturn(issued);
+        when(userCouponRepository.save(any())).thenReturn(savedUserCoupon);
 
-    private final long USER_ID = 1L;
-    private final long COUPON_ID = 100L;
+        CouponResponse.UserCoupon result = couponService.issueCoupon(userId, couponId);
 
-    @BeforeEach
-    void setUp() {
-        MockitoAnnotations.openMocks(this);
+        assertEquals(couponId, result.getCouponId());
+        assertEquals("1000원 할인", result.getCouponName());
+        assertEquals(1000, result.getDiscountAmount());
     }
 
     @Test
-    void 사용자_없으면_예외_발생() {
-        when(userRepository.findById(USER_ID)).thenReturn(null);
+    @DisplayName("존재하지 않는 사용자에게는 쿠폰을 발급할 수 없다")
+    void issueCoupon_invalidUser() {
+        when(userRepository.findById(anyLong())).thenReturn(null);
 
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
-            () -> couponService.issueCoupon(USER_ID, COUPON_ID));
-
-        assertEquals("유효하지 않는 사용자입니다.", exception.getMessage());
+        assertThrows(IllegalArgumentException.class, () ->
+            couponService.issueCoupon(999L, 1L)
+        );
     }
 
     @Test
-    void 쿠폰_없으면_예외_발생() {
-        when(userRepository.findById(USER_ID)).thenReturn(new User(USER_ID));
-        when(couponRepository.findById(COUPON_ID)).thenReturn(null);
+    @DisplayName("존재하지 않는 쿠폰은 발급할 수 없다")
+    void issueCoupon_invalidCoupon() {
+        long userId = 1L;
+        when(userRepository.findById(userId)).thenReturn(mock(User.class));
+        when(couponRepository.findById(anyLong())).thenReturn(null);
 
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
-            () -> couponService.issueCoupon(USER_ID, COUPON_ID));
-
-        assertEquals("유효하지 않는 쿠폰입니다.", exception.getMessage());
+        assertThrows(IllegalArgumentException.class, () ->
+            couponService.issueCoupon(userId, 999L)
+        );
     }
 
     @Test
-    void 쿠폰_정상_발급() {
-        // given
-        User user = new User(USER_ID);
-        Coupon coupon = mock(Coupon.class);
-        CouponCode code = mock(CouponCode.class);
-        Discount discount = mock(Discount.class);
+    @DisplayName("사용자 보유 쿠폰 목록을 조회할 수 있다")
+    void getUserCoupons_success() {
+        long userId = 1L;
+        Coupon coupon = Coupon.of(10L, "할인쿠폰", 500, 5);
+        UserCoupon userCoupon = UserCoupon.issue(userId, coupon, LocalDateTime.now());
 
-        // coupon.getCode().getValue() 호출 대비
-        when(coupon.getCode()).thenReturn(code);
-        when(code.getValue()).thenReturn("SPRING10");
-        when(coupon.getDiscount()).thenReturn(discount);
-        when(discount.getAmount()).thenReturn(100);  // 예시 금액
+        when(userCouponRepository.findAllByUserId(userId)).thenReturn(List.of(userCoupon));
 
-        // 기타 필드들 (translateUserCoupon 내부에서 참조할 수 있음)
-        when(coupon.getType()).thenReturn(CouponType.PERCENTAGE); // 필요 없을 수도 있음
-        doNothing().when(coupon).issue();
+        List<CouponResponse.UserCoupon> result = couponService.getUserCoupons(userId);
 
-        // 발급된 쿠폰과 응답 객체 mock
-        UserCoupon issuedCoupon = mock(UserCoupon.class);
-        CouponResponse.UserCoupon response = mock(CouponResponse.UserCoupon.class);
-        when(issuedCoupon.translateUserCoupon()).thenReturn(response);
+        assertEquals(1, result.size());
+        assertEquals("할인쿠폰", result.get(0).getCouponName());
+    }
 
-        // repository stubbing
-        when(userRepository.findById(USER_ID)).thenReturn(user);
-        when(couponRepository.findById(COUPON_ID)).thenReturn(coupon);
-        when(userCouponRepository.save(any(UserCoupon.class))).thenReturn(issuedCoupon);
+    @Test
+    @DisplayName("쿠폰 사용에 성공한다")
+    void validateAndUseCoupon_success() {
+        long userId = 1L;
+        long couponId = 10L;
 
-        // when
-        CouponResponse.UserCoupon result = couponService.issueCoupon(USER_ID, COUPON_ID);
+        User user = mock(User.class);
+        Coupon coupon = Coupon.of(couponId, "3000원 할인", 3000, 5);
+        Coupon issued = coupon.issue();
 
-        // then
-        assertEquals("SPRING10", result.couponCode());
-        assertEquals(100, result.discount());
-        assertEquals(CouponType.PERCENTAGE, result.type());
-        assertFalse(result.used());
+        when(userRepository.findById(userId)).thenReturn(user);
+        when(couponRepository.findById(couponId)).thenReturn(coupon);
+        when(couponRepository.save(any())).thenReturn(issued);
+        when(userCouponRepository.save(any())).thenReturn(UserCoupon.issue(userId, issued, LocalDateTime.now()));
 
-        verify(coupon).issue();
-        verify(couponRepository).save(issuedCoupon);
+        Coupon result = couponService.validateAndUseCoupon(userId, couponId);
+
+        assertEquals(couponId, result.id());
+        assertEquals("3000원 할인", result.name());
+    }
+
+    @Test
+    @DisplayName("존재하지 않는 사용자에게는 쿠폰을 사용할 수 없다")
+    void validateAndUseCoupon_invalidUser() {
+        when(userRepository.findById(anyLong())).thenReturn(null);
+
+        assertThrows(IllegalArgumentException.class, () ->
+            couponService.validateAndUseCoupon(999L, 1L)
+        );
+    }
+
+    @Test
+    @DisplayName("존재하지 않는 쿠폰은 사용할 수 없다")
+    void validateAndUseCoupon_invalidCoupon() {
+        long userId = 1L;
+        when(userRepository.findById(userId)).thenReturn(mock(User.class));
+        when(couponRepository.findById(anyLong())).thenReturn(null);
+
+        assertThrows(IllegalArgumentException.class, () ->
+            couponService.validateAndUseCoupon(userId, 999L)
+        );
     }
 }

@@ -1,47 +1,55 @@
 package kr.hhplus.be.server.application.user;
 
-import kr.hhplus.be.server.domain.user.Balance;
+import java.util.List;
+import kr.hhplus.be.server.domain.balance.Balance;
 import kr.hhplus.be.server.domain.user.User;
-import kr.hhplus.be.server.infrastructure.user.UserRepository;
+import kr.hhplus.be.server.domain.balance.BalanceRepository;
+import kr.hhplus.be.server.domain.user.UserRepository;
 import kr.hhplus.be.server.interfaces.user.UserResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+
 
 @Service
 @RequiredArgsConstructor
 public class UserService {
 
     private final UserRepository userRepository;
+    private final BalanceRepository balanceRepository;
+    private final BalanceCalculator balanceCalculator;
 
-    public UserResponse.User chargeBalance(long userId, int amount) {
+    public UserResponse.Balance chargeBalance(Long userId, int amount) {
+        User user = userRepository.findOrThrow(userId);
 
-        // 사용자 식별자 유효성 체크
-        User findUser = userRepository.findById(userId);
-        if (findUser == null) {
-            throw new IllegalArgumentException("유효하지 않는 사용자입니다.");
-        }
+        // 충전 이력 생성 및 저장
+        Balance balanceHistory = Balance.charge(userId, amount);
+        balanceRepository.save(balanceHistory);
 
-        // 잔고 객체 생성
-        Balance balance = new Balance(amount);
+        // 잔액 계산
+        List<Balance> history = balanceRepository.findAllByUserId(userId);
+        int totalBalance = BalanceCalculator.calculate(history);
 
-        // 4) 충전 후 금액 체크
-        findUser.charge(balance.amount());
-
-        // 잔액 충전
-        User user = userRepository.updateBalance(userId, findUser.getBalanceAmount());
-
-        return user.translateUser(user);
+        return new UserResponse.Balance(user.id(), user.name(), totalBalance);
     }
 
-    public UserResponse.User getUser(long userId) {
+    public UserResponse.Balance getUserBalance(Long userId) {
+        User user = userRepository.findOrThrow(userId);
+        List<Balance> history = balanceRepository.findAllByUserId(userId);
+        int totalBalance = BalanceCalculator.calculate(history);
 
-        // 사용자 식별자 유효성 체크
-        User findUser = userRepository.findById(userId);
-        if (findUser == null) {
-            throw new IllegalArgumentException("유효하지 않는 사용자입니다.");
+        return new UserResponse.Balance(user.id(), user.name(), totalBalance);
+    }
+
+    public void validateAndPay(Long userId, int totalAmount) {
+        User user = userRepository.findOrThrow(userId);
+
+        List<Balance> history = balanceRepository.findAllByUserId(userId);
+        int currentBalance = BalanceCalculator.calculate(history);
+        if (currentBalance < totalAmount) {
+            throw new IllegalStateException("잔액이 부족합니다.");
         }
 
-        return findUser.translateUser(findUser);
+        balanceRepository.save(Balance.deduct(userId, totalAmount));
     }
 
 }
