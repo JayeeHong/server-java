@@ -28,10 +28,10 @@ public class CouponResponse {
 
         public static UserCoupon from(kr.hhplus.be.server.domain.user.UserCoupon entity) {
             return new UserCoupon(
-                entity.coupon().id(),
-                entity.coupon().name(),
-                entity.coupon().discountAmount(),
-                entity.issuedAt()
+                entity.getCoupon().getId(),
+                entity.getCoupon().getName(),
+                entity.getCoupon().getDiscountAmount(),
+                entity.getIssuedAt()
             );
         }
     }
