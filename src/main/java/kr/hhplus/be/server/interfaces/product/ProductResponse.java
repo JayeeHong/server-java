@@ -40,11 +40,11 @@ public class ProductResponse {
 
     public static List<ProductDto> translate(List<kr.hhplus.be.server.domain.product.Product> products) {
         return products.stream()
-            .map(p -> new ProductDto(p.id(), p.name(), p.price(), p.stock()))
+            .map(p -> new ProductDto(p.getId(), p.getName(), p.getPrice(), p.getStock()))
             .toList();
     }
 
     public static ProductDto from(kr.hhplus.be.server.domain.product.Product product) {
-        return new ProductDto(product.id(), product.name(), product.price(), product.stock());
+        return new ProductDto(product.getId(), product.getName(), product.getPrice(), product.getStock());
     }
 }

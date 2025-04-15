@@ -24,4 +24,9 @@ public interface ProductRepository {
      */
     Product save(Product product);
 
+    /**
+     * 상품 삭제
+     */
+    void deleteById(Long id);
+
 }

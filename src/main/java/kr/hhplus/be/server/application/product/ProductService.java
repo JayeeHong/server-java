@@ -12,9 +12,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class ProductService {
 
     private final ProductRepository productRepository;
@@ -26,6 +28,7 @@ public class ProductService {
         return ProductResponse.translate(productRepository.findAll());
     }
 
+    @Transactional
     public List<Product> getAndDecreaseStock(List<OrderRequest.Item> items) {
         List<Long> productIds = items.stream()
             .map(OrderRequest.Item::getProductId)
@@ -38,8 +41,8 @@ public class ProductService {
 
         List<Product> updatedProducts = new ArrayList<>();
         for (Product product : products) {
-            int orderQty = quantityMap.get(product.id());
-            if (product.stock() < orderQty) {
+            int orderQty = quantityMap.get(product.getId());
+            if (product.getStock() < orderQty) {
                 throw new IllegalStateException("재고가 부족합니다.");
             }
             Product decreased = product.decreaseStock(orderQty);
@@ -55,7 +58,7 @@ public class ProductService {
         if (product == null) {
             throw new IllegalArgumentException("존재하지 않는 상품입니다.");
         }
-        return product.price();
+        return product.getPrice();
     }
 
 }
