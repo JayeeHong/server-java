@@ -21,33 +21,37 @@ class OrderFacadeTest {
     CouponService couponService = mock(CouponService.class);
     UserService userService = mock(UserService.class);
     OrderRepository orderRepository = mock(OrderRepository.class);
-    OrderItemRepository orderItemRepository = mock(OrderItemRepository.class);
 
-    OrderFacade orderFacade = new OrderFacade(productService, couponService, userService, orderRepository, orderItemRepository);
+    OrderFacade orderFacade = new OrderFacade(productService, couponService, userService, orderRepository);
 
     @Test
     @DisplayName("주문 흐름 성공")
     void placeOrder_success() {
-        OrderRequest.Command request = new OrderRequest.Command(1L, null, List.of(
-            new OrderRequest.Item(101L, 2)
-        ));
+        // given
+        OrderRequest.Command request = new OrderRequest.Command(
+            1L,
+            null,
+            List.of(new OrderRequest.Item(101L, 2)) // 2개 주문
+        );
 
-        when(productService.getAndDecreaseStock(any())).thenReturn(List.of(
-            Product.of(101L, "상품1", 10000, 98)
-        ));
-        when(productService.getPrice(101L)).thenReturn(10000);
+        // 상품 가격 10,000원 * 2개 = 20,000원
+        Product product = Product.of(101L, "상품1", 10000, 98);
+        when(productService.getAndDecreaseStock(any())).thenReturn(List.of(product));
 
-        Order order = Order.of(null, 1L, 20000, List.of(
-            OrderItem.of(null, null, 101L, 2)
-        ));
-        Order saved = Order.of(1001L, 1L, 20000, order.orderItems());
+        Order order = Order.of(null, 1L, 20000);
+        order.addItem(OrderItem.of(null, 101L, 2));
 
+        Order saved = Order.of(1001L, 1L, 20000); // 저장 후 반환되는 주문 객체
         when(orderRepository.save(any())).thenReturn(saved);
 
+        // when
         OrderResponse.Summary result = orderFacade.placeOrder(request);
+
+        // then
         assertEquals(1001L, result.getOrderId());
         assertEquals(20000, result.getTotalAmount());
     }
+
 
     @Test
     @DisplayName("상품 재고 없음 등으로 실패 시 예외 발생")
@@ -76,7 +80,7 @@ class OrderFacadeTest {
         ));
         when(productService.getPrice(101L)).thenReturn(10000);
         doThrow(new IllegalArgumentException("유효하지 않은 쿠폰입니다."))
-            .when(couponService).validateAndUseCoupon(1L, 99L);
+            .when(couponService).useCoupon(1L, 99L);
 
         assertThrows(IllegalArgumentException.class, () -> orderFacade.placeOrder(request));
     }
