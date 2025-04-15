@@ -1,6 +1,7 @@
 package kr.hhplus.be.server.domain.user;
 
 import kr.hhplus.be.server.domain.balance.Balance;
+import kr.hhplus.be.server.domain.balance.TransactionType;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
