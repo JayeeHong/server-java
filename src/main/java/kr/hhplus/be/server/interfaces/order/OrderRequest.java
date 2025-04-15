@@ -19,9 +19,9 @@ public class OrderRequest {
 
         @NotNull(message = "수량은 필수입니다.")
         @Schema(description = "주문 수량", example = "2")
-        private final Integer quantity;
+        private final int quantity;
 
-        public Item(Long productId, Integer quantity) {
+        public Item(Long productId, int quantity) {
             this.productId = productId;
             this.quantity = quantity;
         }

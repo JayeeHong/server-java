@@ -35,12 +35,12 @@ public class OrderResponse {
 
         public static Summary from(Order order, Coupon usedCoupon) {
             return new Summary(
-                order.id(),
-                order.userId(),
-                order.totalAmount(),
-                usedCoupon != null ? usedCoupon.id() : null,
-                order.orderStatus().name(),
-                order.orderedAt()
+                order.getId(),
+                order.getUserId(),
+                order.getTotalAmount(),
+                usedCoupon != null ? usedCoupon.getId() : null,
+                order.getOrderStatus().name(),
+                order.getOrderedAt()
             );
         }
     }
