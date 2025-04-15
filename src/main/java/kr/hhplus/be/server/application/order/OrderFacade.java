@@ -70,6 +70,6 @@ public class OrderFacade {
 
         Order savedOrder = orderRepository.save(order); // cascade = ALL이면 orderItem도 저장됨
 
-        return OrderResponse.Summary.from(savedOrder, usedCoupon);
+        return OrderResponse.Summary.from(savedOrder, orderItems, usedCoupon);
     }
 }
