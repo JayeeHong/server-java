@@ -1,7 +1,7 @@
 package kr.hhplus.be.server.integration.product;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.util.List;
 import kr.hhplus.be.server.application.product.ProductService;
@@ -9,16 +9,17 @@ import kr.hhplus.be.server.domain.product.Product;
 import kr.hhplus.be.server.domain.product.ProductRepository;
 import kr.hhplus.be.server.interfaces.order.OrderRequest;
 import kr.hhplus.be.server.interfaces.product.ProductResponse.ProductDto;
-import org.junit.Before;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.transaction.annotation.Transactional;
 
 @ActiveProfiles("test")
 @SpringBootTest
+@Transactional
 public class ProductIntegrationTest {
 
     @Autowired
@@ -31,10 +32,8 @@ public class ProductIntegrationTest {
 
     @BeforeEach
     void setUp() {
-
         product = Product.create("productA", 1000, 100);
         productRepository.save(product);
-
     }
 
     @Test
@@ -64,6 +63,19 @@ public class ProductIntegrationTest {
 
         // then
         assertThat(productDto.getStock()).isEqualTo(0);
+    }
+
+    @Test
+    @DisplayName("상품 재고 감소 실패 - 차감하려고 하는 상품의 갯수가 재고보다 많음")
+    void getAndDecreaseStockFailTest() {
+
+        // when
+        List<OrderRequest.Item> items = List.of(
+            OrderRequest.Item.of(product.getId(), 101));
+
+        // then
+        assertThatThrownBy(() -> productService.getAndDecreaseStock(items))
+            .isInstanceOf(IllegalStateException.class);
     }
 
     @Test
