@@ -40,6 +40,10 @@ public class Product {
         return new Product(id, name, price, stock);
     }
 
+    public static Product create(String name, int price, int stock) {
+        return Product.of(null, name, price, stock);
+    }
+
     /**
      * 재고를 감소시키는 메서드 (주문 시 사용)
      * @throws IllegalStateException 재고 부족 시 예외
