@@ -8,4 +8,6 @@ public interface JpaUserCouponRepository extends JpaRepository<UserCoupon, Long>
 
     List<UserCoupon> findAllByUserId(Long userId);
 
+    UserCoupon findByUserIdAndCouponId(Long userId, Long couponId);
+
 }
