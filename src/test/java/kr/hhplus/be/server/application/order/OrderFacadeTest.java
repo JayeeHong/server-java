@@ -6,7 +6,7 @@ import kr.hhplus.be.server.application.user.UserService;
 import kr.hhplus.be.server.domain.order.*;
 import kr.hhplus.be.server.domain.product.Product;
 import kr.hhplus.be.server.interfaces.order.OrderRequest;
-import kr.hhplus.be.server.interfaces.order.OrderResponse;
+import kr.hhplus.be.server.interfaces.order.OrderResponse.Result;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -45,7 +45,7 @@ class OrderFacadeTest {
         when(orderRepository.save(any())).thenReturn(saved);
 
         // when
-        OrderResponse.Summary result = orderFacade.placeOrder(request);
+        Result result = orderFacade.placeOrder(request);
 
         // then
         assertEquals(1001L, result.getOrderId());

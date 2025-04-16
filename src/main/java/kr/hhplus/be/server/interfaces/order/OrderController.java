@@ -2,6 +2,7 @@ package kr.hhplus.be.server.interfaces.order;
 
 import jakarta.validation.Valid;
 import kr.hhplus.be.server.application.order.OrderFacade;
+import kr.hhplus.be.server.interfaces.order.OrderResponse.Result;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -14,7 +15,7 @@ public class OrderController implements OrderApi {
 
     @Override
     @PostMapping
-    public OrderResponse.Summary placeOrder(@RequestBody @Valid OrderRequest.Command request) {
+    public Result placeOrder(@RequestBody @Valid OrderRequest.Command request) {
         return orderFacade.placeOrder(request);
     }
 }

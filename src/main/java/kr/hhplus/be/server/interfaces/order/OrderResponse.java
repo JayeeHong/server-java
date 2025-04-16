@@ -16,7 +16,7 @@ public class OrderResponse {
     @Getter
     @RequiredArgsConstructor
     @Schema(description = "주문 응답")
-    public static class Summary {
+    public static class Result {
 
         @Schema(description = "주문 ID", example = "101")
         private final Long orderId;
@@ -39,13 +39,13 @@ public class OrderResponse {
         @Schema(description = "주문 상품 목록")
         private final List<OrderItemResponse.OrderItem> items;
 
-        public static Summary from(Order order, List<OrderItem> orderItem, Coupon usedCoupon) {
+        public static Result from(Order order, List<OrderItem> orderItem, Coupon usedCoupon) {
 
             List<OrderItemResponse.OrderItem> items = orderItem.stream()
                 .map(OrderItemResponse.OrderItem::from)
                 .collect(Collectors.toList());
 
-            return new Summary(
+            return new Result(
                 order.getId(),
                 order.getUserId(),
                 order.getTotalAmount(),

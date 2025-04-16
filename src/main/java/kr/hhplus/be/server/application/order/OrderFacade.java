@@ -10,7 +10,7 @@ import kr.hhplus.be.server.domain.order.OrderItem;
 import kr.hhplus.be.server.domain.order.OrderRepository;
 import kr.hhplus.be.server.domain.product.Product;
 import kr.hhplus.be.server.interfaces.order.OrderRequest;
-import kr.hhplus.be.server.interfaces.order.OrderResponse;
+import kr.hhplus.be.server.interfaces.order.OrderResponse.Result;
 import lombok.RequiredArgsConstructor;
 
 import java.util.List;
@@ -31,11 +31,11 @@ public class OrderFacade {
     private final OrderRepository orderRepository;
 
     @Transactional
-    public OrderResponse.Summary placeOrder(OrderRequest.Command command) {
+    public Result placeOrder(OrderRequest.Command command) {
         // 1. 상품 조회 및 재고 차감
         List<Product> products = productService.getAndDecreaseStock(command.getItems());
 
-        // 2. 상품 ID → 상품 매핑
+        // 2. 상품 ID -> 상품 매핑
         Map<Long, Product> productMap = products.stream()
             .collect(Collectors.toMap(Product::getId, p -> p));
 
@@ -70,6 +70,6 @@ public class OrderFacade {
 
         Order savedOrder = orderRepository.save(order); // cascade = ALL이면 orderItem도 저장됨
 
-        return OrderResponse.Summary.from(savedOrder, orderItems, usedCoupon);
+        return Result.from(savedOrder, orderItems, usedCoupon);
     }
 }
