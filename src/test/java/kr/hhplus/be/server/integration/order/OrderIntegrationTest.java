@@ -119,7 +119,7 @@ public class OrderIntegrationTest {
 
         // given
         Coupon coupon = Coupon.of(null, "1000원 할인", 1000, 10,
-            LocalDateTime.of(2026, 4, 15, 20, 48));
+            LocalDateTime.of(9999, 4, 15, 20, 48));
         couponRepository.save(coupon);
 
         UserCoupon userCoupon = UserCoupon.issue(user.id(), coupon, LocalDateTime.now());

@@ -91,7 +91,8 @@ class CouponServiceTest {
         long couponId = 10L;
 
         User user = mock(User.class);
-        Coupon coupon = Coupon.of(couponId, "3000원 할인", 3000, 5, LocalDateTime.of(2025, 4, 15, 20, 48));
+        Coupon coupon = Coupon.of(couponId, "3000원 할인", 3000, 5,
+            LocalDateTime.of(9999, 4, 15, 20, 48));
         Coupon issued = coupon.issue();
         List<UserCoupon> userCoupons = List.of(
             UserCoupon.issue(userId, coupon, LocalDateTime.now()));
