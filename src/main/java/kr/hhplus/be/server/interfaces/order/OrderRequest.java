@@ -25,6 +25,10 @@ public class OrderRequest {
             this.productId = productId;
             this.quantity = quantity;
         }
+
+        public static Item of(Long productId, int quantity) {
+            return new Item(productId, quantity);
+        }
     }
 
     @Getter
@@ -46,6 +50,10 @@ public class OrderRequest {
             this.userId = userId;
             this.couponId = couponId;
             this.items = items;
+        }
+
+        public static Command of(Long userId, Long couponId, List<Item> items) {
+            return new Command(userId, couponId, items);
         }
     }
 }
