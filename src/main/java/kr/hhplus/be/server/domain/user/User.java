@@ -34,6 +34,10 @@ public class User {
         return new User(id, name);
     }
 
+    public static User create(String name) {
+        return User.of(null, name);
+    }
+
     public Long id() {
         return id;
     }
