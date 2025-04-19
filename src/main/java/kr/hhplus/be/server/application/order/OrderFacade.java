@@ -21,14 +21,12 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
 public class OrderFacade {
 
     private final ProductService productService;
     private final CouponService couponService;
     private final UserService userService;
-
-    private final OrderRepository orderRepository;
+    private final OrderService orderService;
 
     @Transactional
     public Result placeOrder(OrderRequest.Command command) {
@@ -68,7 +66,7 @@ public class OrderFacade {
         Order order = Order.of(null, command.getUserId(), totalAmount);
         orderItems.forEach(order::addItem); // 양방향 연관관계 설정
 
-        Order savedOrder = orderRepository.save(order); // cascade = ALL이면 orderItem도 저장됨
+        Order savedOrder = orderService.createOrder(order); // cascade = ALL이면 orderItem도 저장됨
 
         return Result.from(savedOrder, orderItems, usedCoupon);
     }

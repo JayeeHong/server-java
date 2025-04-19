@@ -20,9 +20,10 @@ class OrderFacadeTest {
     ProductService productService = mock(ProductService.class);
     CouponService couponService = mock(CouponService.class);
     UserService userService = mock(UserService.class);
-    OrderRepository orderRepository = mock(OrderRepository.class);
+    OrderService orderService = mock(OrderService.class);
 
-    OrderFacade orderFacade = new OrderFacade(productService, couponService, userService, orderRepository);
+    OrderFacade orderFacade = new OrderFacade(productService, couponService, userService,
+        orderService);
 
     @Test
     @DisplayName("주문 흐름 성공")
@@ -42,7 +43,7 @@ class OrderFacadeTest {
         order.addItem(OrderItem.of(null, 101L, 2));
 
         Order saved = Order.of(1001L, 1L, 20000); // 저장 후 반환되는 주문 객체
-        when(orderRepository.save(any())).thenReturn(saved);
+        when(orderService.createOrder(any())).thenReturn(saved);
 
         // when
         Result result = orderFacade.placeOrder(request);
