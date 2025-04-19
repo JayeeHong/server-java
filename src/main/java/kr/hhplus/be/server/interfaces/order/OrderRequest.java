@@ -19,11 +19,15 @@ public class OrderRequest {
 
         @NotNull(message = "수량은 필수입니다.")
         @Schema(description = "주문 수량", example = "2")
-        private final Integer quantity;
+        private final int quantity;
 
-        public Item(Long productId, Integer quantity) {
+        public Item(Long productId, int quantity) {
             this.productId = productId;
             this.quantity = quantity;
+        }
+
+        public static Item of(Long productId, int quantity) {
+            return new Item(productId, quantity);
         }
     }
 
@@ -46,6 +50,10 @@ public class OrderRequest {
             this.userId = userId;
             this.couponId = couponId;
             this.items = items;
+        }
+
+        public static Command of(Long userId, Long couponId, List<Item> items) {
+            return new Command(userId, couponId, items);
         }
     }
 }

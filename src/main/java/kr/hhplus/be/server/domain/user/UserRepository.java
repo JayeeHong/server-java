@@ -17,4 +17,6 @@ public interface UserRepository {
         }
         return user;
     }
+
+    User save(User user);
 }

@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.List;
 import kr.hhplus.be.server.domain.balance.Balance;
+import kr.hhplus.be.server.domain.balance.TransactionType;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 

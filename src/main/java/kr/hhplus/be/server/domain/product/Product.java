@@ -1,11 +1,33 @@
 package kr.hhplus.be.server.domain.product;
 
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+
+@Entity
+@Table(name = "product")
+@Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Product {
 
-    private final Long id;
-    private final String name;
-    private final int price;
-    private final int stock;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(nullable = false)
+    private String name;
+
+    @Column(nullable = false)
+    private int price;
+
+    @Column(nullable = false)
+    private int stock;
 
     private Product(Long id, String name, int price, int stock) {
         this.id = id;
@@ -16,6 +38,10 @@ public class Product {
 
     public static Product of(Long id, String name, int price, int stock) {
         return new Product(id, name, price, stock);
+    }
+
+    public static Product create(String name, int price, int stock) {
+        return Product.of(null, name, price, stock);
     }
 
     /**
@@ -29,19 +55,4 @@ public class Product {
         return new Product(this.id, this.name, this.price, this.stock - quantity);
     }
 
-    public Long id() {
-        return id;
-    }
-
-    public String name() {
-        return name;
-    }
-
-    public int price() {
-        return price;
-    }
-
-    public int stock() {
-        return stock;
-    }
 }

@@ -31,7 +31,7 @@ class CouponServiceTest {
         long couponId = 10L;
 
         User user = mock(User.class);
-        Coupon coupon = Coupon.of(couponId, "1000원 할인", 1000, 10);
+        Coupon coupon = Coupon.of(couponId, "1000원 할인", 1000, 10, LocalDateTime.now());
         Coupon issued = coupon.issue();
         UserCoupon savedUserCoupon = UserCoupon.issue(userId, issued, LocalDateTime.now());
 
@@ -73,7 +73,7 @@ class CouponServiceTest {
     @DisplayName("사용자 보유 쿠폰 목록을 조회할 수 있다")
     void getUserCoupons_success() {
         long userId = 1L;
-        Coupon coupon = Coupon.of(10L, "할인쿠폰", 500, 5);
+        Coupon coupon = Coupon.of(10L, "할인쿠폰", 500, 5, LocalDateTime.now());
         UserCoupon userCoupon = UserCoupon.issue(userId, coupon, LocalDateTime.now());
 
         when(userCouponRepository.findAllByUserId(userId)).thenReturn(List.of(userCoupon));
@@ -86,44 +86,48 @@ class CouponServiceTest {
 
     @Test
     @DisplayName("쿠폰 사용에 성공한다")
-    void validateAndUseCoupon_success() {
+    void useCoupon_success() {
         long userId = 1L;
         long couponId = 10L;
 
         User user = mock(User.class);
-        Coupon coupon = Coupon.of(couponId, "3000원 할인", 3000, 5);
+        Coupon coupon = Coupon.of(couponId, "3000원 할인", 3000, 5,
+            LocalDateTime.of(9999, 4, 15, 20, 48));
         Coupon issued = coupon.issue();
+        List<UserCoupon> userCoupons = List.of(
+            UserCoupon.issue(userId, coupon, LocalDateTime.now()));
 
         when(userRepository.findById(userId)).thenReturn(user);
+        when(userCouponRepository.findAllByUserId(userId)).thenReturn(userCoupons);
         when(couponRepository.findById(couponId)).thenReturn(coupon);
         when(couponRepository.save(any())).thenReturn(issued);
         when(userCouponRepository.save(any())).thenReturn(UserCoupon.issue(userId, issued, LocalDateTime.now()));
 
-        Coupon result = couponService.validateAndUseCoupon(userId, couponId);
+        Coupon result = couponService.useCoupon(userId, couponId);
 
-        assertEquals(couponId, result.id());
-        assertEquals("3000원 할인", result.name());
+        assertEquals(couponId, result.getId());
+        assertEquals("3000원 할인", result.getName());
     }
 
     @Test
     @DisplayName("존재하지 않는 사용자에게는 쿠폰을 사용할 수 없다")
-    void validateAndUseCoupon_invalidUser() {
+    void useCoupon_invalidUser() {
         when(userRepository.findById(anyLong())).thenReturn(null);
 
         assertThrows(IllegalArgumentException.class, () ->
-            couponService.validateAndUseCoupon(999L, 1L)
+            couponService.useCoupon(999L, 1L)
         );
     }
 
     @Test
     @DisplayName("존재하지 않는 쿠폰은 사용할 수 없다")
-    void validateAndUseCoupon_invalidCoupon() {
+    void useCoupon_invalidCoupon() {
         long userId = 1L;
         when(userRepository.findById(userId)).thenReturn(mock(User.class));
         when(couponRepository.findById(anyLong())).thenReturn(null);
 
         assertThrows(IllegalArgumentException.class, () ->
-            couponService.validateAndUseCoupon(userId, 999L)
+            couponService.useCoupon(userId, 999L)
         );
     }
 }

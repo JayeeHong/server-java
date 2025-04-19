@@ -17,7 +17,7 @@ class UserServiceTest {
 
     UserRepository userRepository = mock(UserRepository.class);
     BalanceRepository balanceRepository = mock(BalanceRepository.class);
-    BalanceCalculator balanceCalculator = mock(BalanceCalculator.class);
+    BalanceCalculator balanceCalculator = new BalanceCalculator(balanceRepository);
 
     UserService userService = new UserService(userRepository, balanceRepository, balanceCalculator);
 
@@ -28,13 +28,9 @@ class UserServiceTest {
         Long userId = 1L;
         int amount = 1000;
         User user = User.of(userId, "홍길동");
-        List<Balance> history = List.of(
-            Balance.charge(userId, 3000),
-            Balance.charge(userId, 2000)
-        );
 
         when(userRepository.findOrThrow(userId)).thenReturn(user);
-        when(balanceRepository.findAllByUserId(userId)).thenReturn(history);
+        when(balanceRepository.getTotalBalance(anyLong())).thenReturn(5000);
 
         // when
         UserResponse.Balance result = userService.chargeBalance(userId, amount);
@@ -58,7 +54,7 @@ class UserServiceTest {
         );
 
         when(userRepository.findOrThrow(userId)).thenReturn(user);
-        when(balanceRepository.findAllByUserId(userId)).thenReturn(history);
+        when(balanceRepository.getTotalBalance(anyLong())).thenReturn(4000);
 
         // when
         UserResponse.Balance result = userService.getUserBalance(userId);
