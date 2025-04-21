@@ -1,5 +1,6 @@
 package kr.hhplus.be.server.application.coupon;
 
+import jakarta.persistence.OptimisticLockException;
 import kr.hhplus.be.server.domain.coupon.CouponRepository;
 import kr.hhplus.be.server.domain.user.User;
 import kr.hhplus.be.server.domain.user.UserCoupon;
@@ -60,6 +61,50 @@ public class CouponService {
 
         // 응답 변환
         return CouponResponse.UserCoupon.from(saved);
+    }
+
+    @Transactional
+    public CouponResponse.UserCoupon issueCouponWithOptimisticLock(long userId, long couponId) {
+
+        int retryCount = 0;
+        while (retryCount < 3) {
+            try {
+                User user = userRepository.findById(userId);
+                if (user == null) {
+                    throw new IllegalArgumentException("유효하지 않는 사용자입니다.");
+                }
+
+                Coupon coupon = couponRepository.findById(couponId);
+                if (coupon == null) {
+                    throw new IllegalArgumentException("유효하지 않는 쿠폰입니다. couponId = " + couponId);
+                }
+
+                // 중복 발급 방지 (선택적으로 사용)
+                boolean alreadyIssued = userCouponRepository.findAllByUserId(userId).stream()
+                    .anyMatch(uc -> uc.getCoupon().getId().equals(couponId));
+                if (alreadyIssued) {
+                    throw new IllegalStateException("이미 발급받은 쿠폰입니다.");
+                }
+
+                // 쿠폰 발급
+                Coupon issued = coupon.issue();
+                couponRepository.save(issued);  // 여기서 version 체크해서 실패하면 OptimisticLockException 터짐
+
+                UserCoupon userCoupon = UserCoupon.issue(userId, coupon, LocalDateTime.now());
+                userCouponRepository.save(userCoupon);
+
+                return CouponResponse.UserCoupon.from(userCoupon);
+
+            } catch (OptimisticLockException e) {
+                retryCount++;
+                log.warn("OptimisticLockException 발생, 재시도: {}/3", retryCount);
+                if (retryCount >= 3) {
+                    throw new RuntimeException("쿠판 발급 실패 (최대 재시도 초과)", e);
+                }
+            }
+        }
+
+        throw new RuntimeException("쿠폰 발급 실패 (알 수 없는 이유");
     }
 
     /**

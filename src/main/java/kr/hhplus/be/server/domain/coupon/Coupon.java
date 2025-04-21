@@ -10,6 +10,7 @@ import java.time.LocalDateTime;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.Version;
 
 @Entity
 @Table(name = "coupons")
@@ -30,6 +31,9 @@ public class Coupon {
     private boolean active;
 
     private LocalDateTime expiredAt;
+
+    @Version
+    private Long version;
 
     private Coupon(Long id, String name, int discountAmount, int stock, LocalDateTime expiredAt) {
         this.id = id;
