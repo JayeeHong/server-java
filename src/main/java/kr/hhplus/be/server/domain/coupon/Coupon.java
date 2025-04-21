@@ -27,6 +27,8 @@ public class Coupon {
 
     private int stock;
 
+    private boolean active;
+
     private LocalDateTime expiredAt;
 
     private Coupon(Long id, String name, int discountAmount, int stock, LocalDateTime expiredAt) {
@@ -34,6 +36,7 @@ public class Coupon {
         this.name = name;
         this.discountAmount = discountAmount;
         this.stock = stock;
+        this.active = true;
         this.expiredAt = expiredAt;
     }
 
@@ -49,6 +52,6 @@ public class Coupon {
     }
 
     public boolean isExpired() {
-        return expiredAt.isBefore(LocalDateTime.now());
+        return !active || expiredAt.isBefore(LocalDateTime.now());
     }
 }

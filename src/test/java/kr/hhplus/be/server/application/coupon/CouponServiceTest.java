@@ -32,12 +32,12 @@ class CouponServiceTest {
 
         User user = mock(User.class);
         Coupon coupon = Coupon.of(couponId, "1000원 할인", 1000, 10, LocalDateTime.now());
-        Coupon issued = coupon.issue();
-        UserCoupon savedUserCoupon = UserCoupon.issue(userId, issued, LocalDateTime.now());
+        Coupon issuedCoupon = coupon.issue();
+        UserCoupon savedUserCoupon = UserCoupon.issue(userId, issuedCoupon, LocalDateTime.now());
 
         when(userRepository.findById(userId)).thenReturn(user);
-        when(couponRepository.findById(couponId)).thenReturn(coupon);
-        when(couponRepository.save(any())).thenReturn(issued);
+        when(couponRepository.findByIdWithPessimisticLock(couponId)).thenReturn(coupon);
+        when(couponRepository.save(issuedCoupon)).thenReturn(issuedCoupon);
         when(userCouponRepository.save(any())).thenReturn(savedUserCoupon);
 
         CouponResponse.UserCoupon result = couponService.issueCoupon(userId, couponId);
