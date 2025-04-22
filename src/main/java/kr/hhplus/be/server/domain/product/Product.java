@@ -6,6 +6,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.persistence.Version;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -29,6 +30,9 @@ public class Product {
     @Column(nullable = false)
     private int stock;
 
+    @Version
+    private Long version;
+
     private Product(Long id, String name, int price, int stock) {
         this.id = id;
         this.name = name;
@@ -48,11 +52,12 @@ public class Product {
      * 재고를 감소시키는 메서드 (주문 시 사용)
      * @throws IllegalStateException 재고 부족 시 예외
      */
-    public Product decreaseStock(int quantity) {
+    public void decreaseStock(int quantity) {
         if (this.stock < quantity) {
             throw new IllegalStateException("재고가 부족합니다.");
         }
-        return new Product(this.id, this.name, this.price, this.stock - quantity);
+
+        this.stock = this.stock - quantity;
     }
 
 }
