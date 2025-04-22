@@ -1,5 +1,9 @@
 package kr.hhplus.be.server.application.product;
 
+import org.springframework.retry.annotation.Retryable;
+import org.springframework.retry.annotation.Backoff;
+
+import jakarta.persistence.OptimisticLockException;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -9,6 +13,7 @@ import kr.hhplus.be.server.interfaces.order.OrderRequest;
 import kr.hhplus.be.server.interfaces.product.ProductResponse;
 import kr.hhplus.be.server.interfaces.product.ProductResponse.ProductDto;
 import lombok.RequiredArgsConstructor;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -16,7 +21,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
 public class ProductService {
 
     private final ProductRepository productRepository;
@@ -24,6 +28,7 @@ public class ProductService {
     /**
      * 전체 상품 목록을 조회한다.
      */
+    @Transactional(readOnly = true)
     public List<ProductDto> getAllProducts() {
         return ProductResponse.translate(productRepository.findAll());
     }
@@ -45,14 +50,33 @@ public class ProductService {
             if (product.getStock() < orderQty) {
                 throw new IllegalStateException("재고가 부족합니다.");
             }
-            Product decreased = product.decreaseStock(orderQty);
-            productRepository.save(decreased);  // 즉시 반영
-            updatedProducts.add(decreased);
+            product.decreaseStock(orderQty);
+            updatedProducts.add(product);
         }
 
         return updatedProducts;
     }
 
+    @Retryable(
+        value = {OptimisticLockException.class, ObjectOptimisticLockingFailureException.class},
+        maxAttempts = 3,  // 최대 3번 재시도
+        backoff = @Backoff(delay = 100) // 100ms 쉬고 재시도
+    )
+    @Transactional
+    public void decreaseStock(Long productId, int quantity) {
+        Product product = productRepository.findById(productId);
+
+        product.decreaseStock(quantity);
+    }
+
+    @Transactional
+    public void decreaseStockWithoutConcurrency(Long productId, int quantity) {
+        Product product = productRepository.findById(productId);
+
+        product.decreaseStock(quantity);
+    }
+
+    @Transactional(readOnly = true)
     public int getPrice(Long productId) {
         Product product = productRepository.findById(productId);
         if (product == null) {
