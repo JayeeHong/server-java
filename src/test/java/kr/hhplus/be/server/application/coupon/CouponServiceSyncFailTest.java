@@ -49,8 +49,8 @@ public class CouponServiceSyncFailTest {
         userRepository.save(user);
 
         Coupon coupon = Coupon.of(null, "1000원 할인", 1000, 2, LocalDateTime.now());
-        Coupon issuedCoupon = coupon.issue();
-        couponRepository.save(issuedCoupon);
+        coupon.issue();
+//        couponRepository.save(coupon);
 
         int threadCount = 3;
         ExecutorService executorService = Executors.newFixedThreadPool(threadCount);
@@ -61,7 +61,7 @@ public class CouponServiceSyncFailTest {
         for (int i = 0; i < threadCount; i++) {
             executorService.submit(() -> {
                 try {
-                    couponService.issueCoupon(user.id(), issuedCoupon.getId());
+                    couponService.issueCoupon(user.id(), coupon.getId());
                 } catch (Exception e) {
                     // 예외 터지는 갯수 체크
                     catchCount.getAndIncrement();
@@ -81,7 +81,7 @@ public class CouponServiceSyncFailTest {
         assertThat(catchCount.get()).isEqualTo(2);
 
         // 쿠폰 3번 발급했으나 쿠폰 수량은 1개만 차감되어야 함
-        Coupon findCoupon = couponRepository.findById(issuedCoupon.getId());
+        Coupon findCoupon = couponRepository.findById(coupon.getId());
         assertThat(findCoupon.getStock()).isEqualTo(1);
 
         // 쿠폰이 정상적으로 발급되었으면 사용자에게 발급한 쿠폰이 1장이어야 함
@@ -98,10 +98,9 @@ public class CouponServiceSyncFailTest {
         userRepository.save(user);
 
         Coupon coupon = Coupon.of(null, "1000원 할인", 1000, 2, LocalDateTime.now());
-        Coupon issuedCoupon = coupon.issue();
-        couponRepository.save(issuedCoupon);
+        coupon.issue();
 
-        UserCoupon userCoupon = UserCoupon.issue(user.id(), issuedCoupon, LocalDateTime.now());
+        UserCoupon userCoupon = UserCoupon.issue(user.id(), coupon, LocalDateTime.now());
         userCouponRepository.save(userCoupon);
 
         int threadCount = 3;
@@ -113,7 +112,7 @@ public class CouponServiceSyncFailTest {
         for (int i = 0; i < threadCount; i++) {
             executorService.submit(() -> {
                 try {
-                    UserCoupon sameUserCoupon = UserCoupon.issue(user.id(), issuedCoupon,
+                    UserCoupon sameUserCoupon = UserCoupon.issue(user.id(), coupon,
                         LocalDateTime.now());
                     userCouponRepository.save(sameUserCoupon);
                 } finally {

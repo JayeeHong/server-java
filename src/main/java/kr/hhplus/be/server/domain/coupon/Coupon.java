@@ -32,9 +32,6 @@ public class Coupon {
 
     private LocalDateTime expiredAt;
 
-    @Version
-    private Long version;
-
     private Coupon(Long id, String name, int discountAmount, int stock, LocalDateTime expiredAt) {
         this.id = id;
         this.name = name;
@@ -48,11 +45,13 @@ public class Coupon {
         return new Coupon(id, name, discountAmount, stock, expiredAt);
     }
 
-    public Coupon issue() {
+    public void issue() {
         if (stock <= 0) {
             throw new IllegalStateException("쿠폰이 모두 소진되었습니다.");
         }
-        return new Coupon(id, name, discountAmount, stock - 1, LocalDateTime.now());
+
+        this.stock = this.stock - 1;
+//        return new Coupon(id, name, discountAmount, stock - 1, LocalDateTime.now());
     }
 
     public boolean isExpired() {
