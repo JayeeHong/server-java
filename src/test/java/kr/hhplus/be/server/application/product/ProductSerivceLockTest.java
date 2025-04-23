@@ -20,7 +20,7 @@ import org.springframework.transaction.PlatformTransactionManager;
 @ActiveProfiles("test")
 @SpringBootTest
 @Slf4j
-public class ProductSerivceOptimisticLockTest {
+public class ProductSerivceLockTest {
 
     @Autowired
     private ProductService productService;
@@ -33,6 +33,45 @@ public class ProductSerivceOptimisticLockTest {
 
     @Autowired
     private EntityManager em;
+
+    @Test
+    @DisplayName("상품 재고 감소 비관적락 테스트")
+    void decreaseStockPessimisticLockTest() throws InterruptedException {
+
+        // given
+        Product product = Product.create("productA", 1000, 10);
+        productRepository.save(product);
+
+        // when
+        int numberOfThreads = 2;
+        ExecutorService executorService = Executors.newFixedThreadPool(numberOfThreads);
+        CountDownLatch latch = new CountDownLatch(numberOfThreads);
+
+        AtomicInteger catchCount = new AtomicInteger();
+        for (int i = 0; i < numberOfThreads; i++) {
+            executorService.submit(() -> {
+                try {
+                    productService.decreaseStockWithPessimisticLock(product.getId(), 1);
+                } catch (Exception e) {
+                    // 예외 터지는 갯수 체크
+                    catchCount.getAndIncrement();
+                    // 예외 로그
+                    log.error("{} (error message: {})", e.getClass(), e.getMessage());
+                } finally {
+                    latch.countDown();
+                }
+            });
+        }
+
+        latch.await();
+        executorService.shutdown();
+
+        // then
+        Product updated = productRepository.findById(product.getId());
+        System.out.println("최종 재고: " + updated.getStock());
+        assertEquals(updated.getStock(), 8);
+        assertEquals(catchCount.get(), 0);
+    }
 
     @Test
     @DisplayName("상품 재고 감소 낙관적락 테스트")
