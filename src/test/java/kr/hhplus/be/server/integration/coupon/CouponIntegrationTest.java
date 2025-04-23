@@ -54,7 +54,6 @@ public class CouponIntegrationTest {
 
     @Test
     @DisplayName("쿠폰 발급 성공")
-    @Transactional
     void issueCouponTest() {
 
         // given
@@ -74,7 +73,6 @@ public class CouponIntegrationTest {
 
     @Test
     @DisplayName("쿠폰 발급 실패 - 같은 사용자에게 두번 발급")
-    @Transactional
     void issueCouponFailTest() {
 
         // given

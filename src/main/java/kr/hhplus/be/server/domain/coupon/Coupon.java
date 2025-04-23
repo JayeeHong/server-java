@@ -10,7 +10,6 @@ import java.time.LocalDateTime;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.springframework.data.annotation.Version;
 
 @Entity
 @Table(name = "coupons")
