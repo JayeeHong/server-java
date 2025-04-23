@@ -21,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class ProductService {
 
     private final ProductRepository productRepository;
@@ -28,7 +29,6 @@ public class ProductService {
     /**
      * 전체 상품 목록을 조회한다.
      */
-    @Transactional(readOnly = true)
     public List<ProductDto> getAllProducts() {
         return ProductResponse.translate(productRepository.findAll());
     }
@@ -65,6 +65,13 @@ public class ProductService {
     @Transactional
     public void decreaseStock(Long productId, int quantity) {
         Product product = productRepository.findById(productId);
+
+        product.decreaseStock(quantity);
+    }
+
+    @Transactional
+    public void decreaseStockWithPessimisticLock(Long productId, int quantity) {
+        Product product = productRepository.findByIdWithPessimisticLock(productId);
 
         product.decreaseStock(quantity);
     }

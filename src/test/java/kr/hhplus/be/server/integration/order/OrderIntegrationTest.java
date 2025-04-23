@@ -33,6 +33,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @ActiveProfiles("test")
 @SpringBootTest
+@Transactional
 public class OrderIntegrationTest {
 
     @Autowired
@@ -86,7 +87,6 @@ public class OrderIntegrationTest {
 
     @Test
     @DisplayName("쿠폰 없이 주문을 생성한다")
-    @Transactional
     void placeOrderWithoutCoupon() {
 
         // given
@@ -114,7 +114,6 @@ public class OrderIntegrationTest {
 
     @Test
     @DisplayName("쿠폰을 적용하여 주문을 생성한다")
-    @Transactional
     void placeOrderWithCoupon() {
 
         // given
