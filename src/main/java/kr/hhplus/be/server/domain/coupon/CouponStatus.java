@@ -15,9 +15,14 @@ public enum CouponStatus {
 
     private final String description;
 
-    private static final List<CouponStatus> CANNOT_PUBLISHABLE_STATUSES = List.of(EXPIRED, REGISTERED);
+    private static final List<CouponStatus> CANNOT_ISSUABLE_STATUSES = List.of(EXPIRED);
+    private static final List<CouponStatus> CANNOT_EXPIRE_STATUSES = List.of(EXPIRED);
 
     public boolean cannotPublishable() {
-        return CANNOT_PUBLISHABLE_STATUSES.contains(this);
+        return CANNOT_ISSUABLE_STATUSES.contains(this);
+    }
+
+    public boolean cannotExpire() {
+        return CANNOT_EXPIRE_STATUSES.contains(this);
     }
 }

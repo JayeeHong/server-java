@@ -77,6 +77,31 @@ public class Coupon {
         return this;
     }
 
+    // 쿠폰 상태 발급 가능 처리
+    public Coupon publish() {
+
+        if (this.status.cannotPublishable()) {
+            throw new IllegalStateException("쿠폰을 발급상태로 변경할 수 없습니다.");
+        }
+
+        this.status = CouponStatus.PUBLISHABLE;
+
+        return this;
+    }
+
+    // 쿠폰 상태 만료 처리
+    public Coupon expire() {
+
+        if (this.status.cannotExpire()) {
+            throw new IllegalStateException("쿠폰을 만료시킬 수 없습니다.");
+        }
+
+        this.status = CouponStatus.EXPIRED;
+        this.expiredAt = LocalDateTime.now();
+
+        return this;
+    }
+
     private static void validateName(String name) {
         if (name == null) {
             throw new IllegalArgumentException("쿠폰 이름은 필수입니다.");
