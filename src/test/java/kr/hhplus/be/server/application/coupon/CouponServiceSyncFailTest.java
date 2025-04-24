@@ -61,7 +61,7 @@ public class CouponServiceSyncFailTest {
         for (int i = 0; i < threadCount; i++) {
             executorService.submit(() -> {
                 try {
-                    couponService.issueCoupon(user.id(), coupon.getId());
+                    couponService.issueCoupon(user.getId(), coupon.getId());
                 } catch (Exception e) {
                     // 예외 터지는 갯수 체크
                     catchCount.getAndIncrement();
@@ -85,7 +85,7 @@ public class CouponServiceSyncFailTest {
         assertThat(findCoupon.getStock()).isEqualTo(1);
 
         // 쿠폰이 정상적으로 발급되었으면 사용자에게 발급한 쿠폰이 1장이어야 함
-        List<UserCoupon> findUserCoupons = userCouponRepository.findAllByUserId(user.id());
+        List<UserCoupon> findUserCoupons = userCouponRepository.findAllByUserId(user.getId());
         assertThat(findUserCoupons).hasSizeGreaterThan(1);
     }
 
@@ -100,7 +100,7 @@ public class CouponServiceSyncFailTest {
         Coupon coupon = Coupon.of(null, "1000원 할인", 1000, 2, LocalDateTime.now());
         coupon.issue();
 
-        UserCoupon userCoupon = UserCoupon.issue(user.id(), coupon, LocalDateTime.now());
+        UserCoupon userCoupon = UserCoupon.issue(user.getId(), coupon, LocalDateTime.now());
         userCouponRepository.save(userCoupon);
 
         int threadCount = 3;
@@ -112,7 +112,7 @@ public class CouponServiceSyncFailTest {
         for (int i = 0; i < threadCount; i++) {
             executorService.submit(() -> {
                 try {
-                    UserCoupon sameUserCoupon = UserCoupon.issue(user.id(), coupon,
+                    UserCoupon sameUserCoupon = UserCoupon.issue(user.getId(), coupon,
                         LocalDateTime.now());
                     userCouponRepository.save(sameUserCoupon);
                 } finally {
@@ -126,7 +126,7 @@ public class CouponServiceSyncFailTest {
 
         // then
         // 쿠폰이 정상적으로 발급되었으면 사용자에게 발급한 쿠폰이 1장이어야 함
-        List<UserCoupon> findUserCoupons = userCouponRepository.findAllByUserId(user.id());
+        List<UserCoupon> findUserCoupons = userCouponRepository.findAllByUserId(user.getId());
         assertThat(findUserCoupons).isEqualTo(1);
     }
 

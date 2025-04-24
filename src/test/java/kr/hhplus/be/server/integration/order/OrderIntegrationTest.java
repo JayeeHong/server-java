@@ -81,7 +81,7 @@ public class OrderIntegrationTest {
         product = Product.create("productA", 1000, 100);
         productRepository.save(product);
 
-        balance = Balance.charge(user.id(), 10000);
+        balance = Balance.charge(user.getId(), 10000);
         balanceRepository.save(balance);
     }
 
@@ -90,7 +90,7 @@ public class OrderIntegrationTest {
     void placeOrderWithoutCoupon() {
 
         // given
-        OrderRequest.Command command = OrderRequest.Command.of(user.id(), null,
+        OrderRequest.Command command = OrderRequest.Command.of(user.getId(), null,
             List.of(OrderRequest.Item.of(product.getId(), 2)));
 
         // when
@@ -102,7 +102,7 @@ public class OrderIntegrationTest {
         assertThat(findProduct.getStock()).isEqualTo(98);
 
         // 잔액 확인
-        int totalBalance = balanceRepository.getTotalBalance(user.id());
+        int totalBalance = balanceRepository.getTotalBalance(user.getId());
         assertThat(totalBalance).isEqualTo(8000);
 
         // 주문 확인
@@ -121,10 +121,10 @@ public class OrderIntegrationTest {
             LocalDateTime.of(9999, 4, 15, 20, 48));
         couponRepository.save(coupon);
 
-        UserCoupon userCoupon = UserCoupon.issue(user.id(), coupon, LocalDateTime.now());
+        UserCoupon userCoupon = UserCoupon.issue(user.getId(), coupon, LocalDateTime.now());
         userCouponRepository.save(userCoupon);
 
-        OrderRequest.Command command = OrderRequest.Command.of(user.id(), coupon.getId(),
+        OrderRequest.Command command = OrderRequest.Command.of(user.getId(), coupon.getId(),
             List.of(OrderRequest.Item.of(product.getId(), 2)));
 
         // when
@@ -136,7 +136,7 @@ public class OrderIntegrationTest {
         assertThat(findProduct.getStock()).isEqualTo(98);
 
         // 잔액 확인
-        int totalBalance = balanceRepository.getTotalBalance(user.id());
+        int totalBalance = balanceRepository.getTotalBalance(user.getId());
         assertThat(totalBalance).isEqualTo(9000);
 
         // 주문 확인

@@ -61,9 +61,9 @@ public class CouponIntegrationTest {
         userRepository.save(user);
 
         // when
-        UserCoupon userCoupon = couponService.issueCoupon(user.id(), couponA.getId());
+        UserCoupon userCoupon = couponService.issueCoupon(user.getId(), couponA.getId());
         List<kr.hhplus.be.server.domain.user.UserCoupon> userCoupons = userCouponRepository.findAllByUserId(
-            user.id());
+            user.getId());
 
         // then
         assertThat(userCoupon.getCouponId()).isEqualTo(couponA.getId());
@@ -80,8 +80,8 @@ public class CouponIntegrationTest {
         userRepository.save(user);
 
         // when
-        couponService.issueCoupon(user.id(), couponA.getId());
-        assertThatThrownBy(() -> couponService.issueCoupon(user.id(), couponA.getId()))
+        couponService.issueCoupon(user.getId(), couponA.getId());
+        assertThatThrownBy(() -> couponService.issueCoupon(user.getId(), couponA.getId()))
             .isInstanceOf(IllegalStateException.class)
             .hasMessage("이미 발급받은 쿠폰입니다.");
     }
@@ -94,11 +94,11 @@ public class CouponIntegrationTest {
         user = User.create("userA");
         userRepository.save(user);
 
-        couponService.issueCoupon(user.id(), couponA.getId());
-        couponService.issueCoupon(user.id(), couponB.getId());
+        couponService.issueCoupon(user.getId(), couponA.getId());
+        couponService.issueCoupon(user.getId(), couponB.getId());
 
         // when
-        List<UserCoupon> userCoupons = couponService.getUserCoupons(user.id());
+        List<UserCoupon> userCoupons = couponService.getUserCoupons(user.getId());
 
         // then
         assertThat(userCoupons).hasSize(2);

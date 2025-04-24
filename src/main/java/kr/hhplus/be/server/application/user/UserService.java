@@ -29,14 +29,14 @@ public class UserService {
         // 잔액 계산
         int totalBalance = balanceCalculator.calculate(userId);
 
-        return new UserResponse.Balance(user.id(), user.name(), totalBalance);
+        return new UserResponse.Balance(user.getId(), user.getName(), totalBalance);
     }
 
     public UserResponse.Balance getUserBalance(Long userId) {
         User user = userRepository.findOrThrow(userId);
         int totalBalance = balanceCalculator.calculate(userId);
 
-        return new UserResponse.Balance(user.id(), user.name(), totalBalance);
+        return new UserResponse.Balance(user.getId(), user.getName(), totalBalance);
     }
 
     @Transactional

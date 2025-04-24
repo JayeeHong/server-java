@@ -14,7 +14,7 @@ class UserTest {
     @DisplayName("사용자가 금액을 충전하면 CHARGE 트랜잭션 생성")
     void chargeBalance_createsChargeTransaction() {
         User user = User.of(1L, "홍길동");
-        Balance balance = Balance.charge(user.id(), 1000);
+        Balance balance = Balance.charge(user.getId(), 1000);
 
         assertEquals(1L, balance.userId());
         assertEquals(1000, balance.amount());
@@ -26,7 +26,7 @@ class UserTest {
     @DisplayName("사용자가 금액을 차감하면 PAYMENT 트랜잭션 생성")
     void deductBalance_createsPaymentTransaction() {
         User user = User.of(1L, "홍길동");
-        Balance balance = Balance.deduct(user.id(), 500);
+        Balance balance = Balance.deduct(user.getId(), 500);
 
         assertEquals(1L, balance.userId());
         assertEquals(-500, balance.amount());
