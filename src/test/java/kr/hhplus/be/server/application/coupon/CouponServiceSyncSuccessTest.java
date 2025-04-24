@@ -97,7 +97,7 @@ public class CouponServiceSyncSuccessTest {
         Coupon coupon = Coupon.of(null, "1000원 할인", 1000, 2, LocalDateTime.now());
         couponRepository.save(coupon);
 
-        UserCoupon userCoupon = UserCoupon.issue(user.getId(), coupon, LocalDateTime.now());
+        UserCoupon userCoupon = UserCoupon.create(user.getId(), coupon.getId(), LocalDateTime.now());
         userCouponRepository.save(userCoupon);
 
         int threadCount = 3;

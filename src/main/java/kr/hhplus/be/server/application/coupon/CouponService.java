@@ -1,6 +1,5 @@
 package kr.hhplus.be.server.application.coupon;
 
-import jakarta.persistence.OptimisticLockException;
 import kr.hhplus.be.server.domain.coupon.CouponRepository;
 import kr.hhplus.be.server.domain.user.User;
 import kr.hhplus.be.server.domain.user.UserCoupon;
@@ -46,7 +45,7 @@ public class CouponService {
 
         // 중복 발급 방지 (선택적으로 사용)
         boolean alreadyIssued = userCouponRepository.findAllByUserId(userId).stream()
-            .anyMatch(uc -> uc.getCoupon().getId().equals(couponId));
+            .anyMatch(uc -> uc.getCouponId().equals(couponId));
         if (alreadyIssued) {
             throw new IllegalStateException("이미 발급받은 쿠폰입니다.");
         }
@@ -56,7 +55,7 @@ public class CouponService {
 //        couponRepository.save(issued);
 
         // 사용자 쿠폰 발급 기록 저장
-        UserCoupon userCoupon = UserCoupon.issue(userId, coupon, LocalDateTime.now());
+        UserCoupon userCoupon = UserCoupon.create(userId, couponId, LocalDateTime.now());
         UserCoupon saved = userCouponRepository.save(userCoupon);
 
         // 응답 변환
@@ -83,7 +82,7 @@ public class CouponService {
 
         // 중복 발급 방지 (선택적으로 사용)
         boolean alreadyIssued = userCouponRepository.findAllByUserId(userId).stream()
-            .anyMatch(uc -> uc.getCoupon().getId().equals(couponId));
+            .anyMatch(uc -> uc.getCouponId().equals(couponId));
         if (alreadyIssued) {
             throw new IllegalStateException("이미 발급받은 쿠폰입니다.");
         }
@@ -93,7 +92,7 @@ public class CouponService {
         couponRepository.save(coupon);
 
         // 사용자 쿠폰 발급 기록 저장
-        UserCoupon userCoupon = UserCoupon.issue(userId, coupon, LocalDateTime.now());
+        UserCoupon userCoupon = UserCoupon.create(userId, couponId, LocalDateTime.now());
         UserCoupon saved = userCouponRepository.save(userCoupon);
 
         // 응답 변환
@@ -113,27 +112,22 @@ public class CouponService {
      * 쿠폰 사용
      */
     @Transactional
-    public Coupon useCoupon(Long userId, Long couponId) {
+    public UserCoupon useCoupon(Long userId, Long couponId) {
         User user = userRepository.findById(userId);
         if (user == null) {
             throw new IllegalArgumentException("유효하지 않은 사용자입니다.");
         }
 
         UserCoupon userCoupon = userCouponRepository.findAllByUserId(userId).stream()
-            .filter(uc -> uc.getCoupon().getId().equals(couponId))
+            .filter(uc -> uc.getCouponId().equals(couponId))
             .findFirst()
             .orElseThrow(() -> new IllegalArgumentException("해당 쿠폰을 보유하고 있지 않습니다."));
 
-        // 쿠폰 만료 여부 체크
-        if (userCoupon.getCoupon().isExpired()) {
-            throw new IllegalStateException("만료된 쿠폰입니다.");
-        }
-
         // 사용 처리
-        userCoupon.markAsUsed();
+        userCoupon.use();
         userCouponRepository.save(userCoupon);
 
-        return userCoupon.getCoupon();
+        return userCoupon;
     }
 
 }

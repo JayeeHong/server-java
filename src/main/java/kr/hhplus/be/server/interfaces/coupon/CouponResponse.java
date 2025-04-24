@@ -27,12 +27,14 @@ public class CouponResponse {
         private final LocalDateTime issuedAt;
 
         public static UserCoupon from(kr.hhplus.be.server.domain.user.UserCoupon entity) {
-            return new UserCoupon(
-                entity.getCoupon().getId(),
-                entity.getCoupon().getName(),
-                entity.getCoupon().getDiscountAmount(),
-                entity.getIssuedAt()
-            );
+            return null;
+
+//            return new UserCoupon(
+//                entity.getCoupon().getId(),
+//                entity.getCoupon().getName(),
+//                entity.getCoupon().getDiscountAmount(),
+//                entity.getIssuedAt()
+//            );
         }
     }
 

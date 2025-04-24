@@ -100,7 +100,7 @@ public class CouponServiceSyncFailTest {
         Coupon coupon = Coupon.of(null, "1000원 할인", 1000, 2, LocalDateTime.now());
         coupon.issue();
 
-        UserCoupon userCoupon = UserCoupon.issue(user.getId(), coupon, LocalDateTime.now());
+        UserCoupon userCoupon = UserCoupon.create(user.getId(), coupon.getId(), LocalDateTime.now());
         userCouponRepository.save(userCoupon);
 
         int threadCount = 3;
@@ -112,7 +112,7 @@ public class CouponServiceSyncFailTest {
         for (int i = 0; i < threadCount; i++) {
             executorService.submit(() -> {
                 try {
-                    UserCoupon sameUserCoupon = UserCoupon.issue(user.getId(), coupon,
+                    UserCoupon sameUserCoupon = UserCoupon.create(user.getId(), coupon.getId(),
                         LocalDateTime.now());
                     userCouponRepository.save(sameUserCoupon);
                 } finally {

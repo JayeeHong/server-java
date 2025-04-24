@@ -53,11 +53,12 @@ public class OrderFacade {
         }
 
         // 4. 쿠폰 적용
+        // TODO 쿠폰 적용
         Coupon usedCoupon = null;
-        if (command.getCouponId() != null) {
-            usedCoupon = couponService.useCoupon(command.getUserId(), command.getCouponId());
-            totalAmount = Math.max(0, totalAmount - usedCoupon.getDiscountAmount());
-        }
+//        if (command.getCouponId() != null) {
+//            usedCoupon = couponService.useCoupon(command.getUserId(), command.getCouponId());
+//            totalAmount = Math.max(0, totalAmount - usedCoupon.getDiscountAmount());
+//        }
 
         // 5. 잔액 차감
         userService.validateAndPay(command.getUserId(), totalAmount);
