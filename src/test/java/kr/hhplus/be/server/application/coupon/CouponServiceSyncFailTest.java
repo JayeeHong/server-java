@@ -82,7 +82,7 @@ public class CouponServiceSyncFailTest {
 
         // 쿠폰 3번 발급했으나 쿠폰 수량은 1개만 차감되어야 함
         Coupon findCoupon = couponRepository.findById(coupon.getId());
-        assertThat(findCoupon.getStock()).isEqualTo(1);
+        assertThat(findCoupon.getQuantity()).isEqualTo(1);
 
         // 쿠폰이 정상적으로 발급되었으면 사용자에게 발급한 쿠폰이 1장이어야 함
         List<UserCoupon> findUserCoupons = userCouponRepository.findAllByUserId(user.getId());

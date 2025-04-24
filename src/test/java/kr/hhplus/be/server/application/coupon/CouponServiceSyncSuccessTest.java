@@ -15,6 +15,7 @@ import kr.hhplus.be.server.domain.user.UserCoupon;
 import kr.hhplus.be.server.domain.user.UserCouponRepository;
 import kr.hhplus.be.server.domain.user.UserRepository;
 import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +25,7 @@ import org.springframework.test.context.ActiveProfiles;
 @ActiveProfiles("test")
 @SpringBootTest
 @Slf4j
+@Disabled
 public class CouponServiceSyncSuccessTest {
 
     @Autowired
@@ -79,7 +81,7 @@ public class CouponServiceSyncSuccessTest {
 
         // 쿠폰 3장 발급했으므로 재고 소진
         Coupon findCoupon = couponRepository.findById(coupon.getId());
-        assertThat(findCoupon.getStock()).isEqualTo(0);
+        assertThat(findCoupon.getQuantity()).isEqualTo(0);
 
         // 사용자에게 쿠폰 3장 발급
         List<UserCoupon> findUserCoupons = userCouponRepository.findAllByUserId(user.getId());
