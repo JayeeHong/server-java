@@ -83,7 +83,7 @@ public class OrderIntegrationTest {
         product = Product.create("productA", 1000, 100);
         productRepository.save(product);
 
-        balance = Balance.charge(user.getId(), 10000);
+        balance = Balance.create(user.getId(), 10000);
         balanceRepository.save(balance);
     }
 

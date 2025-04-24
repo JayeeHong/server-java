@@ -1,5 +1,6 @@
 package kr.hhplus.be.server.domain.balance;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -7,66 +8,94 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.OneToMany;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Getter
 @Entity
-@Table(name = "balances")
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Balance {
 
+    private static final long MAX_BALANCE_AMOUNT = 10_000_000L;
+
     @Id
+    @Column(name = "balance_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
     private Long userId;
 
-    @Column(nullable = false)
-    private int amount;
-    
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private TransactionType transactionType;
+    private long amount;
 
-    @Column(nullable = false)
-    private LocalDateTime createdAt;
+    @OneToMany(mappedBy = "balance", cascade = CascadeType.ALL)
+    private List<BalanceTransaction> balanceTransactions = new ArrayList<>();
     
-    // JPA 기본 생성자
-    protected Balance() {}
-
-    private Balance(Long userId, int amount, TransactionType transactionType) {
+    private Balance(Long id, Long userId, long amount) {
+        this.id = id;
         this.userId = userId;
         this.amount = amount;
-        this.transactionType = transactionType;
-        this.createdAt = LocalDateTime.now();
+
+        addChargeTransaction(amount);
     }
 
-    // 잔액 충전
-    public static Balance charge(Long userId, int amount) {
-        return new Balance(userId, amount, TransactionType.CHARGE);
+    public static Balance of(Long userId, long amount) {
+        return new Balance(null, userId, amount);
     }
 
-    // 잔액 차감
-    public static Balance deduct(Long userId, int amount) {
-        return new Balance(userId, -amount, TransactionType.PAYMENT);
+    public static Balance create(Long userId, long amount) {
+        validateAmount(amount);
+        return of(userId, amount);
     }
 
-    public Long userId() {
-        return userId;
+    public void charge(long amount) {
+        if (amount < 1) {
+            throw new IllegalArgumentException("충전 금액은 0보다 커야 합니다.");
+        }
+
+        if (this.amount + amount > MAX_BALANCE_AMOUNT) {
+            throw new IllegalArgumentException("충전 후 금액은 최대 금액을 초과할 수 없습니다.");
+        }
+
+        this.amount += amount;
+        addChargeTransaction(amount);
     }
 
-    public int amount() {
-        return amount;
+    public void use(long amount) {
+        if (amount < 1) {
+            throw new IllegalArgumentException("사용 금액은 0보다 커야 합니다.");
+        }
+
+        if (this.amount - amount < 0) {
+            throw new IllegalArgumentException("사용할 잔액이 부족합니다.");
+        }
+
+        this.amount -= amount;
+        addUseTransaction(amount);
     }
 
-    public TransactionType transactionType() {
-        return transactionType;
+    private static void validateAmount(long amount) {
+        if (amount < 1) {
+            throw new IllegalArgumentException("금액은 0보다 커야 합니다.");
+        }
+
+        if (amount > MAX_BALANCE_AMOUNT) {
+            throw new IllegalArgumentException("최대 금액을 초과할 수 없습니다.");
+        }
     }
 
-    public LocalDateTime createdAt() {
-        return createdAt;
+    private void addChargeTransaction(long amount) {
+        BalanceTransaction transaction = BalanceTransaction.charge(this, amount);
+        this.balanceTransactions.add(transaction);
+    }
+
+    private void addUseTransaction(long amount) {
+        BalanceTransaction transaction = BalanceTransaction.use(this, amount);
+        this.balanceTransactions.add(transaction);
     }
 
 }

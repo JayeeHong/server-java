@@ -5,8 +5,6 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import java.util.List;
-import kr.hhplus.be.server.domain.balance.Balance;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -34,12 +32,5 @@ public class User {
 
     public static User create(String name) {
         return User.of(null, name);
-    }
-
-    /** 이력 기준 총 잔액 계산 */
-    public int calculateBalance(List<Balance> histories) {
-        return histories.stream()
-            .mapToInt(Balance::amount)
-            .sum();
     }
 }

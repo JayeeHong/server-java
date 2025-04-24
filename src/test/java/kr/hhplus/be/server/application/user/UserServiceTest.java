@@ -48,10 +48,6 @@ class UserServiceTest {
         // given
         Long userId = 1L;
         User user = User.of(userId, "홍길동");
-        List<Balance> history = List.of(
-            Balance.charge(userId, 3000),
-            Balance.deduct(userId, 1000)
-        );
 
         when(userRepository.findOrThrow(userId)).thenReturn(user);
         when(balanceRepository.getTotalBalance(anyLong())).thenReturn(4000);

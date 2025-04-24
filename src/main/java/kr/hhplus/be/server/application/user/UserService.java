@@ -23,7 +23,7 @@ public class UserService {
         User user = userRepository.findOrThrow(userId);
 
         // 충전 이력 생성 및 저장
-        Balance balanceHistory = Balance.charge(userId, amount);
+        Balance balanceHistory = Balance.create(userId, amount);
         balanceRepository.save(balanceHistory);
 
         // 잔액 계산
@@ -48,7 +48,7 @@ public class UserService {
             throw new IllegalStateException("잔액이 부족합니다.");
         }
 
-        balanceRepository.save(Balance.deduct(userId, totalAmount));
+        balanceRepository.save(Balance.create(userId, totalAmount));
     }
 
 }
