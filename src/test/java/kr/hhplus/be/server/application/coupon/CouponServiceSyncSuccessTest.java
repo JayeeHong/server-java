@@ -15,7 +15,6 @@ import kr.hhplus.be.server.domain.user.UserCoupon;
 import kr.hhplus.be.server.domain.user.UserCouponRepository;
 import kr.hhplus.be.server.domain.user.UserRepository;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,8 +24,7 @@ import org.springframework.test.context.ActiveProfiles;
 @ActiveProfiles("test")
 @SpringBootTest
 @Slf4j
-@Disabled
-public class CouponServiceSyncFailTest {
+public class CouponServiceSyncSuccessTest {
 
     @Autowired
     private CouponService couponService;
@@ -41,16 +39,15 @@ public class CouponServiceSyncFailTest {
     private UserCouponRepository userCouponRepository;
 
     @Test
-    @DisplayName("한 명의 사용자가 동일한 쿠폰을 여러 개 발급하는 동시성 문제 발생 - 차감 후 쿠폰 갯수 체크")
+    @DisplayName("사용자가 쿠폰을 여러번 발급 시 동시성 문제 발생 - 차감 후 쿠폰 갯수 체크")
     void syncIssueOneUserDuplicateCouponCheckCouponCnt() throws InterruptedException {
 
         // given
         User user = User.create("userA");
         userRepository.save(user);
 
-        Coupon coupon = Coupon.of(null, "1000원 할인", 1000, 2, LocalDateTime.now());
-        coupon.issue();
-//        couponRepository.save(coupon);
+        Coupon coupon = Coupon.of(null, "1000원 할인", 1000, 3, LocalDateTime.now());
+        couponRepository.save(coupon);
 
         int threadCount = 3;
         ExecutorService executorService = Executors.newFixedThreadPool(threadCount);
@@ -77,20 +74,20 @@ public class CouponServiceSyncFailTest {
         executorService.shutdown();
 
         // then
-        // exception 2번 발생 (3번 발급 중 2번은 Deadlock 발생)
-        assertThat(catchCount.get()).isEqualTo(2);
+        // 데드락 발생하지 않음
+        assertThat(catchCount.get()).isEqualTo(0);
 
-        // 쿠폰 3번 발급했으나 쿠폰 수량은 1개만 차감되어야 함
+        // 쿠폰 3장 발급했으므로 재고 소진
         Coupon findCoupon = couponRepository.findById(coupon.getId());
-        assertThat(findCoupon.getStock()).isEqualTo(1);
+        assertThat(findCoupon.getStock()).isEqualTo(0);
 
-        // 쿠폰이 정상적으로 발급되었으면 사용자에게 발급한 쿠폰이 1장이어야 함
+        // 사용자에게 쿠폰 3장 발급
         List<UserCoupon> findUserCoupons = userCouponRepository.findAllByUserId(user.id());
-        assertThat(findUserCoupons).hasSizeGreaterThan(1);
+        assertThat(findUserCoupons).hasSize(3);
     }
 
     @Test
-    @DisplayName("한 명의 사용자가 동일한 쿠폰을 여러 개 발급하는 동시성 문제 발생 - 사용자에게 발급된 쿠폰 갯수 체크")
+    @DisplayName("사용자가 쿠폰을 여러번 발급 시 동시성 문제 발생 - 사용자에게 발급된 쿠폰 갯수 체크")
     void syncIssueOneUserDuplicateCouponCheckUserCouponCnt() throws InterruptedException {
 
         // given
@@ -98,7 +95,7 @@ public class CouponServiceSyncFailTest {
         userRepository.save(user);
 
         Coupon coupon = Coupon.of(null, "1000원 할인", 1000, 2, LocalDateTime.now());
-        coupon.issue();
+        couponRepository.save(coupon);
 
         UserCoupon userCoupon = UserCoupon.issue(user.id(), coupon, LocalDateTime.now());
         userCouponRepository.save(userCoupon);
@@ -112,9 +109,7 @@ public class CouponServiceSyncFailTest {
         for (int i = 0; i < threadCount; i++) {
             executorService.submit(() -> {
                 try {
-                    UserCoupon sameUserCoupon = UserCoupon.issue(user.id(), coupon,
-                        LocalDateTime.now());
-                    userCouponRepository.save(sameUserCoupon);
+                    couponService.issueCoupon(user.id(), coupon.getId());
                 } finally {
                     latch.countDown();
                 }
@@ -127,7 +122,7 @@ public class CouponServiceSyncFailTest {
         // then
         // 쿠폰이 정상적으로 발급되었으면 사용자에게 발급한 쿠폰이 1장이어야 함
         List<UserCoupon> findUserCoupons = userCouponRepository.findAllByUserId(user.id());
-        assertThat(findUserCoupons).isEqualTo(1);
+        assertThat(findUserCoupons).hasSize(1);
     }
 
 }

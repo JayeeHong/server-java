@@ -1,5 +1,6 @@
 package kr.hhplus.be.server.application.coupon;
 
+import jakarta.persistence.OptimisticLockException;
 import kr.hhplus.be.server.domain.coupon.CouponRepository;
 import kr.hhplus.be.server.domain.user.User;
 import kr.hhplus.be.server.domain.user.UserCoupon;
@@ -8,6 +9,7 @@ import kr.hhplus.be.server.domain.user.UserRepository;
 import kr.hhplus.be.server.domain.coupon.Coupon;
 import kr.hhplus.be.server.interfaces.coupon.CouponResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -17,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
+@Slf4j
 public class CouponService {
 
     private final UserRepository userRepository;
@@ -36,9 +39,9 @@ public class CouponService {
         }
 
         // 쿠폰 조회
-        Coupon coupon = couponRepository.findById(couponId);
+        Coupon coupon = couponRepository.findByIdWithPessimisticLock(couponId);
         if (coupon == null) {
-            throw new IllegalArgumentException("유효하지 않는 쿠폰입니다.");
+            throw new IllegalArgumentException("유효하지 않는 쿠폰입니다. couponId = " + couponId);
         }
 
         // 중복 발급 방지 (선택적으로 사용)
@@ -49,11 +52,48 @@ public class CouponService {
         }
 
         // 쿠폰 발급
-        Coupon issued = coupon.issue();
-        couponRepository.save(issued);
+        coupon.issue();
+//        couponRepository.save(issued);
 
         // 사용자 쿠폰 발급 기록 저장
-        UserCoupon userCoupon = UserCoupon.issue(userId, issued, LocalDateTime.now());
+        UserCoupon userCoupon = UserCoupon.issue(userId, coupon, LocalDateTime.now());
+        UserCoupon saved = userCouponRepository.save(userCoupon);
+
+        // 응답 변환
+        return CouponResponse.UserCoupon.from(saved);
+    }
+
+    /**
+     * 선착순 쿠폰 발급 (동시성 제어하지 않음)
+     */
+    @Transactional
+    public CouponResponse.UserCoupon issueCouponWithoutConcurrency(long userId, long couponId) {
+
+        // 사용자 유효성 확인
+        User user = userRepository.findById(userId);
+        if (user == null) {
+            throw new IllegalArgumentException("유효하지 않는 사용자입니다.");
+        }
+
+        // 쿠폰 조회
+        Coupon coupon = couponRepository.findById(couponId);
+        if (coupon == null) {
+            throw new IllegalArgumentException("유효하지 않는 쿠폰입니다. couponId = " + couponId);
+        }
+
+        // 중복 발급 방지 (선택적으로 사용)
+        boolean alreadyIssued = userCouponRepository.findAllByUserId(userId).stream()
+            .anyMatch(uc -> uc.getCoupon().getId().equals(couponId));
+        if (alreadyIssued) {
+            throw new IllegalStateException("이미 발급받은 쿠폰입니다.");
+        }
+
+        // 쿠폰 발급
+        coupon.issue();
+        couponRepository.save(coupon);
+
+        // 사용자 쿠폰 발급 기록 저장
+        UserCoupon userCoupon = UserCoupon.issue(userId, coupon, LocalDateTime.now());
         UserCoupon saved = userCouponRepository.save(userCoupon);
 
         // 응답 변환
