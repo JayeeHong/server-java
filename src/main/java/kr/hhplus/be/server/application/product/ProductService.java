@@ -1,5 +1,8 @@
 package kr.hhplus.be.server.application.product;
 
+import kr.hhplus.be.server.config.redis.RedissonLockService;
+import kr.hhplus.be.server.config.redis.RedissonResultDto;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.retry.annotation.Backoff;
 
@@ -22,9 +25,11 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
+@Slf4j
 public class ProductService {
 
     private final ProductRepository productRepository;
+    private final RedissonLockService lockService;
 
     /**
      * 전체 상품 목록을 조회한다.
@@ -57,13 +62,41 @@ public class ProductService {
         return updatedProducts;
     }
 
+    @Transactional
+    public RedissonResultDto decreaseStockWithRedisson(Long productId, int quantity) {
+
+        boolean locked = lockService.tryLock(String.valueOf(productId));
+
+        if (!locked) {
+            return RedissonResultDto.of("해당 상품 재고 감소 처리가 이미 진행 중입니다.", false);
+        }
+
+        try {
+            log.info("상품 재고 감소 처리 시작: productId={}", productId);
+
+            Product product = productRepository.findById(productId);
+            product.decreaseStock(quantity);
+
+            log.info("상품 재고 감소 처리 완료: productId={}", productId);
+
+            return RedissonResultDto.of("상품 재고 감소 처리 완료", true);
+        } catch (Exception e) {
+            log.error("상품 재고 감소 중 에러 발생: {}", e.getMessage(), e);
+
+            return RedissonResultDto.of("상품 재고 감소 처리 실패", false);
+        } finally {
+            lockService.unlock(String.valueOf(productId));
+            log.info("상품 락 해제 완료: productId={}", productId);
+        }
+    }
+
     @Retryable(
         value = {OptimisticLockException.class, ObjectOptimisticLockingFailureException.class},
         maxAttempts = 3,  // 최대 3번 재시도
         backoff = @Backoff(delay = 100) // 100ms 쉬고 재시도
     )
     @Transactional
-    public void decreaseStock(Long productId, int quantity) {
+    public void decreaseStockWithOptimisticLock(Long productId, int quantity) {
         Product product = productRepository.findById(productId);
 
         product.decreaseStock(quantity);

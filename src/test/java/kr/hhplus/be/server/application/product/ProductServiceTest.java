@@ -1,5 +1,6 @@
 package kr.hhplus.be.server.application.product;
 
+import kr.hhplus.be.server.config.redis.RedissonLockService;
 import kr.hhplus.be.server.domain.product.Product;
 import kr.hhplus.be.server.domain.product.ProductRepository;
 import kr.hhplus.be.server.interfaces.product.ProductResponse.ProductDto;
@@ -14,7 +15,8 @@ import static org.mockito.Mockito.*;
 class ProductServiceTest {
 
     ProductRepository productRepository = mock(ProductRepository.class);
-    ProductService productService = new ProductService(productRepository);
+    RedissonLockService lockService = mock(RedissonLockService.class);
+    ProductService productService = new ProductService(productRepository, lockService);
 
     @Test
     @DisplayName("상품 목록 조회가 성공적으로 수행된다")
