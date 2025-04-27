@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import kr.hhplus.be.server.application.coupon.CouponService;
 import kr.hhplus.be.server.application.product.ProductService;
 import kr.hhplus.be.server.application.user.UserService;
+import kr.hhplus.be.server.config.redis.RedissonLockService;
 import kr.hhplus.be.server.domain.coupon.Coupon;
 import kr.hhplus.be.server.domain.order.Order;
 import kr.hhplus.be.server.domain.order.OrderItem;
@@ -27,6 +28,25 @@ public class OrderFacade {
     private final CouponService couponService;
     private final UserService userService;
     private final OrderService orderService;
+    private final RedissonLockService lockService;
+
+    @Transactional
+    public Result placeOrderWithLock(OrderRequest.Command command) {
+        // 락 획득
+        String lockKey = generateLockKey(command);
+        boolean locked = lockService.tryLock(lockKey);
+
+        if (!locked) {
+            throw new IllegalStateException("현재 주문 처리 중입니다. 잠시 후 다시 시도해주세요.");
+        }
+
+        try {
+            return placeOrder(command);
+        } finally {
+            // 락 해제
+            lockService.unlock(lockKey);
+        }
+    }
 
     @Transactional
     public Result placeOrder(OrderRequest.Command command) {
@@ -70,4 +90,21 @@ public class OrderFacade {
 
         return Result.from(savedOrder, orderItems, usedCoupon);
     }
+    
+    // 주문 등록 시 Redisson lock key 생성
+    private String generateLockKey(OrderRequest.Command command) {
+        List<Long> productIds = command.getItems().stream()
+            .map(OrderRequest.Item::getProductId)
+            .sorted()
+            .collect(Collectors.toList());
+
+        String productPart = productIds.stream()
+            .map(String::valueOf)
+            .collect(Collectors.joining(","));
+
+        return "order-lock:user:" + command.getUserId()
+            + ":products:" + productPart
+            + (command.getCouponId() != null ? ":coupon:" + command.getCouponId() : "");
+    }
+
 }
