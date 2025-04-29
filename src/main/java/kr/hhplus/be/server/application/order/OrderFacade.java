@@ -9,6 +9,7 @@ import kr.hhplus.be.server.domain.coupon.Coupon;
 import kr.hhplus.be.server.domain.order.Order;
 import kr.hhplus.be.server.domain.order.OrderItem;
 import kr.hhplus.be.server.domain.product.Product;
+import kr.hhplus.be.server.domain.user.UserCoupon;
 import kr.hhplus.be.server.interfaces.order.OrderRequest;
 import kr.hhplus.be.server.interfaces.order.OrderResponse.Result;
 import lombok.RequiredArgsConstructor;
@@ -55,11 +56,8 @@ public class OrderFacade {
         }
 
         // 4. 쿠폰 적용
+        // TODO 쿠폰 적용
         Coupon usedCoupon = null;
-        if (command.getCouponId() != null) {
-            usedCoupon = couponService.useCoupon(command.getUserId(), command.getCouponId());
-            totalAmount = Math.max(0, totalAmount - usedCoupon.getDiscountAmount());
-        }
 
         // 5. 잔액 차감
         userService.validateAndPay(command.getUserId(), totalAmount);
