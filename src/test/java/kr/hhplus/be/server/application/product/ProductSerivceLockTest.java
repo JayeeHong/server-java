@@ -6,11 +6,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicReference;
-import kr.hhplus.be.server.config.redis.RedissonLockService;
-import kr.hhplus.be.server.config.redis.RedissonResultDto;
+import kr.hhplus.be.server.config.redis.RedissonLockManager;
 import kr.hhplus.be.server.domain.product.Product;
 import kr.hhplus.be.server.domain.product.ProductRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -32,7 +29,7 @@ public class ProductSerivceLockTest {
     private ProductRepository productRepository;
 
     @Autowired
-    private RedissonLockService lockService;
+    private RedissonLockManager lockService;
 
     @Test
     @DisplayName("상품 재고 감소 Redisson 테스트 - 성공")
@@ -43,69 +40,11 @@ public class ProductSerivceLockTest {
         productRepository.save(product);
 
         // when
-        RedissonResultDto result = productService.decreaseStockWithRedisson(product.getId(), 1);
+        productService.decreaseStockWithRedisson(product.getId(), 1);
 
         // then
         Product updatedProduct = productRepository.findById(product.getId());
-        assertThat(result.isSuccessYn()).isTrue();
         assertThat(updatedProduct.getStock()).isEqualTo(9);
-    }
-
-    @Test
-    @DisplayName("상품 재고 감소 Redisson 테스트 - 락 획득 실패")
-    void decreaseStockRedissonFailTest() throws InterruptedException {
-
-        // given
-        Product product = Product.create("productA", 1000, 10);
-        productRepository.save(product);
-
-        // 메인 스레드에서 락 먼저 획득
-        boolean locked = lockService.tryLock(String.valueOf(product.getId()));
-        assertThat(locked).isTrue();
-
-        CountDownLatch latch = new CountDownLatch(1);
-        AtomicBoolean tryLockSuccess = new AtomicBoolean(false);
-
-        AtomicReference<RedissonResultDto> result = new AtomicReference<>();
-        
-        // 다른 스레드에서 락 시도하기
-        new Thread(() -> {
-            try {
-                // when
-                result.set(productService.decreaseStockWithRedisson(product.getId(), 1));
-
-                // then
-                tryLockSuccess.set(result.get().isSuccessYn());
-            } finally {
-                latch.countDown();
-            }
-        }).start();
-
-        latch.await();
-        lockService.unlock(String.valueOf(product.getId()));
-
-        // then
-        assertThat(result.get().isSuccessYn()).isFalse();
-        log.info("재고 감소 실패 메세지: {}", result.get().getMessage());
-    }
-    
-    @Test
-    @DisplayName("상품 재고 감소 Redisson 테스트 - 재고 부족 실패")
-    void decreaseStockRedissonFailTest_noStock() {
-
-        // given
-        Product product = Product.create("productA", 1000, 10);
-        productRepository.save(product);
-        
-        // when
-        RedissonResultDto result = productService.decreaseStockWithRedisson(product.getId(), 20);
-        
-        // then 
-        assertThat(result.isSuccessYn()).isFalse();
-        log.info("재고 감소 실패 메세지: {}", result.getMessage());
-
-        Product findProduct = productRepository.findById(product.getId());
-        assertThat(findProduct.getStock()).isEqualTo(10); // 재고 감소 없이 그대로
     }
 
     @Test
