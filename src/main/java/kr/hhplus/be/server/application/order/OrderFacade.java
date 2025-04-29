@@ -4,11 +4,10 @@ import java.util.ArrayList;
 import kr.hhplus.be.server.application.coupon.CouponService;
 import kr.hhplus.be.server.application.product.ProductService;
 import kr.hhplus.be.server.application.user.UserService;
-import kr.hhplus.be.server.config.redis.RedissonLockService;
+import kr.hhplus.be.server.config.redis.DistributedLock;
 import kr.hhplus.be.server.domain.coupon.Coupon;
 import kr.hhplus.be.server.domain.order.Order;
 import kr.hhplus.be.server.domain.order.OrderItem;
-import kr.hhplus.be.server.domain.order.OrderRepository;
 import kr.hhplus.be.server.domain.product.Product;
 import kr.hhplus.be.server.interfaces.order.OrderRequest;
 import kr.hhplus.be.server.interfaces.order.OrderResponse.Result;
@@ -28,24 +27,52 @@ public class OrderFacade {
     private final CouponService couponService;
     private final UserService userService;
     private final OrderService orderService;
-    private final RedissonLockService lockService;
 
+    @DistributedLock(key = "lock:order:#{#command.userId}")
     @Transactional
     public Result placeOrderWithLock(OrderRequest.Command command) {
-        // 락 획득
-        String lockKey = generateLockKey(command);
-        boolean locked = lockService.tryLock(lockKey);
+        // 1. 상품 조회 및 재고 차감
+        command.getItems().forEach(item ->
+            productService.decreaseStockWithRedisson(item.getProductId(), item.getQuantity()));
+//        List<Product> products = productService.getAndDecreaseStock(command.getItems());
 
-        if (!locked) {
-            throw new IllegalStateException("현재 주문 처리 중입니다. 잠시 후 다시 시도해주세요.");
+//        // 2. 상품 ID -> 상품 매핑
+//        Map<Long, Product> productMap = products.stream()
+//            .collect(Collectors.toMap(Product::getId, p -> p));
+
+        // 3. 주문 항목 생성 및 총 금액 계산
+        List<OrderItem> orderItems = new ArrayList<>();
+        int totalAmount = 0;
+
+        for (OrderRequest.Item item : command.getItems()) {
+            Product product = productService.getProductInfo(item.getProductId());
+//            Product product = productMap.get(item.getProductId());
+            if (product == null) {
+                throw new IllegalArgumentException("존재하지 않는 상품입니다. ID=" + item.getProductId());
+            }
+
+            OrderItem orderItem = OrderItem.of(null, product.getId(), item.getQuantity());
+            orderItems.add(orderItem);
+            totalAmount += orderItem.calculateTotalPrice(product.getPrice());
         }
 
-        try {
-            return placeOrder(command);
-        } finally {
-            // 락 해제
-            lockService.unlock(lockKey);
+        // 4. 쿠폰 적용
+        Coupon usedCoupon = null;
+        if (command.getCouponId() != null) {
+            usedCoupon = couponService.useCoupon(command.getUserId(), command.getCouponId());
+            totalAmount = Math.max(0, totalAmount - usedCoupon.getDiscountAmount());
         }
+
+        // 5. 잔액 차감
+        userService.validateAndPay(command.getUserId(), totalAmount);
+
+        // 6. 주문 생성 및 저장 (연관관계 연결)
+        Order order = Order.of(null, command.getUserId(), totalAmount);
+        orderItems.forEach(order::addItem); // 양방향 연관관계 설정
+
+        Order savedOrder = orderService.createOrder(order); // cascade = ALL이면 orderItem도 저장됨
+
+        return Result.from(savedOrder, orderItems, usedCoupon);
     }
 
     @Transactional
@@ -90,21 +117,4 @@ public class OrderFacade {
 
         return Result.from(savedOrder, orderItems, usedCoupon);
     }
-    
-    // 주문 등록 시 Redisson lock key 생성
-    private String generateLockKey(OrderRequest.Command command) {
-        List<Long> productIds = command.getItems().stream()
-            .map(OrderRequest.Item::getProductId)
-            .sorted()
-            .collect(Collectors.toList());
-
-        String productPart = productIds.stream()
-            .map(String::valueOf)
-            .collect(Collectors.joining(","));
-
-        return "order-lock:user:" + command.getUserId()
-            + ":products:" + productPart
-            + (command.getCouponId() != null ? ":coupon:" + command.getCouponId() : "");
-    }
-
 }
