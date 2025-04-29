@@ -3,6 +3,7 @@ package kr.hhplus.be.server.integration.order;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
@@ -15,6 +16,8 @@ import kr.hhplus.be.server.application.user.UserService;
 import kr.hhplus.be.server.config.redis.RedissonLockManager;
 import kr.hhplus.be.server.domain.balance.Balance;
 import kr.hhplus.be.server.domain.balance.BalanceRepository;
+import kr.hhplus.be.server.domain.coupon.Coupon;
+import kr.hhplus.be.server.domain.coupon.CouponRepository;
 import kr.hhplus.be.server.domain.product.Product;
 import kr.hhplus.be.server.domain.product.ProductRepository;
 import kr.hhplus.be.server.domain.user.User;
@@ -60,6 +63,9 @@ public class OrderIntegrationLockTest {
 
     @Autowired
     private BalanceRepository balanceRepository;
+
+    @Autowired
+    private CouponRepository couponRepository;
 
     @Test
     @DisplayName("주문 등록 Redisson 락 테스트 - 정상 주문 처리")
@@ -115,14 +121,23 @@ public class OrderIntegrationLockTest {
         Balance balance = Balance.charge(user.id(), 1000000);
         balanceRepository.save(balance);
 
-        // 3. 주문 요청 생성
+        // 3. 쿠폰 등록
+        Coupon coupon = Coupon.of(null, "1000원 할인", 1000, 3, LocalDateTime.now());
+        couponRepository.save(coupon);
+
+        // 4. 주문 요청 생성
         List<Item> items = List.of(new Item(product.getId(), 2)); // 상품 2개 주문
-        Command command = Command.of(user.id(), null, items);
+        Command command = Command.of(user.id(), coupon.getId(), items);
 
         // 락을 미리 잡아놓기 (다른 스레드처럼 시뮬레이션)
-        String lockKey = "order-lock:user:" + user.id() + ":products:" + product.getId();
-        boolean locked = lockService.tryLock(lockKey);
-        assertThat(locked).isTrue();
+        String productLockKey = "product:" + product.getId();
+        String couponLockKey = "coupon:" + coupon.getId();
+
+        boolean productLocked = lockService.tryLock(productLockKey);
+        assertThat(productLocked).isTrue();
+
+        boolean couponLocked = lockService.tryLock(couponLockKey);
+        assertThat(couponLocked).isTrue();
 
         ExecutorService executorService = Executors.newSingleThreadExecutor();
         CountDownLatch latch = new CountDownLatch(1);
@@ -131,7 +146,7 @@ public class OrderIntegrationLockTest {
             // when
             executorService.submit(() -> {
                 try {
-                    assertThatThrownBy(() -> orderFacade.placeOrder(command))
+                    assertThatThrownBy(() -> orderFacade.placeOrderWithLock(command))
                         .isInstanceOf(IllegalStateException.class)
                         .hasMessage("현재 주문 처리 중입니다. 잠시 후 다시 시도해주세요.");
                 } finally {
@@ -141,7 +156,8 @@ public class OrderIntegrationLockTest {
 
             latch.await(); // 다른 스레드 완료 대기
         } finally {
-            lockService.unlock(lockKey);
+            lockService.unlock(productLockKey);
+            lockService.unlock(couponLockKey);
             executorService.shutdown();
         }
     }

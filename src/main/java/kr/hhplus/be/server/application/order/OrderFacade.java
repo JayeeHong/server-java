@@ -28,8 +28,6 @@ public class OrderFacade {
     private final UserService userService;
     private final OrderService orderService;
 
-    @DistributedLock(key = "lock:order:#{#command.userId}")
-    @Transactional
     public Result placeOrderWithLock(OrderRequest.Command command) {
         // 1. 상품 조회 및 재고 차감
         command.getItems().forEach(item ->

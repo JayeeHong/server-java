@@ -1,6 +1,7 @@
 package kr.hhplus.be.server.application.coupon;
 
 import jakarta.persistence.OptimisticLockException;
+import kr.hhplus.be.server.config.redis.DistributedLock;
 import kr.hhplus.be.server.domain.coupon.CouponRepository;
 import kr.hhplus.be.server.domain.user.User;
 import kr.hhplus.be.server.domain.user.UserCoupon;
@@ -113,6 +114,7 @@ public class CouponService {
      * 쿠폰 사용
      */
     @Transactional
+    @DistributedLock(key = "'coupon:' + #couponId")
     public Coupon useCoupon(Long userId, Long couponId) {
         User user = userRepository.findById(userId);
         if (user == null) {
