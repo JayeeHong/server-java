@@ -1,6 +1,5 @@
 package kr.hhplus.be.server.config.redis;
 
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -11,21 +10,21 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class RedissonLockService {
+public class RedissonLockManager implements LockManager {
 
     private final RedissonClient redissonClient;
 
     private static final long WAIT_TIME = 10L; //락 대기 최대 10초
     private static final long LEASE_TIME = 5L; //락 점유 5초
 
-
+    @Override
     public boolean tryLock(String key) {
         RLock lock = redissonClient.getLock(key);
 
         try {
             log.info("락 획득 key={}", key);
             // 락 대기 없이 락 획득 바로 시도
-            return lock.tryLock(0, LEASE_TIME, TimeUnit.SECONDS);
+            return lock.tryLock(WAIT_TIME, LEASE_TIME, TimeUnit.MILLISECONDS);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             throw new IllegalStateException("락 획득 중 인터럽트 발생: {}", e);
@@ -50,6 +49,7 @@ public class RedissonLockService {
         }
     }
 
+    @Override
     public void unlock(String key) {
         RLock lock = redissonClient.getLock(key);
 
