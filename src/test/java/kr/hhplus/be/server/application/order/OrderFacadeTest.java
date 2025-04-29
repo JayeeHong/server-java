@@ -3,7 +3,6 @@ package kr.hhplus.be.server.application.order;
 import kr.hhplus.be.server.application.coupon.CouponService;
 import kr.hhplus.be.server.application.product.ProductService;
 import kr.hhplus.be.server.application.user.UserService;
-import kr.hhplus.be.server.config.redis.RedissonLockService;
 import kr.hhplus.be.server.domain.order.*;
 import kr.hhplus.be.server.domain.product.Product;
 import kr.hhplus.be.server.interfaces.order.OrderRequest;
@@ -22,10 +21,9 @@ class OrderFacadeTest {
     CouponService couponService = mock(CouponService.class);
     UserService userService = mock(UserService.class);
     OrderService orderService = mock(OrderService.class);
-    RedissonLockService lockService = mock(RedissonLockService.class);
 
     OrderFacade orderFacade = new OrderFacade(productService, couponService, userService,
-        orderService, lockService);
+        orderService);
 
     @Test
     @DisplayName("주문 흐름 성공")
