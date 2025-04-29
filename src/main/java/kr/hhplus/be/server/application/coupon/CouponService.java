@@ -1,5 +1,6 @@
 package kr.hhplus.be.server.application.coupon;
 
+import jakarta.persistence.OptimisticLockException;
 import kr.hhplus.be.server.domain.coupon.CouponRepository;
 import kr.hhplus.be.server.domain.user.User;
 import kr.hhplus.be.server.domain.user.UserCoupon;
@@ -45,7 +46,7 @@ public class CouponService {
 
         // 중복 발급 방지 (선택적으로 사용)
         boolean alreadyIssued = userCouponRepository.findAllByUserId(userId).stream()
-            .anyMatch(uc -> uc.getCouponId().equals(couponId));
+            .anyMatch(uc -> uc.getCoupon().getId().equals(couponId));
         if (alreadyIssued) {
             throw new IllegalStateException("이미 발급받은 쿠폰입니다.");
         }
@@ -55,7 +56,7 @@ public class CouponService {
 //        couponRepository.save(issued);
 
         // 사용자 쿠폰 발급 기록 저장
-        UserCoupon userCoupon = UserCoupon.create(userId, couponId, LocalDateTime.now());
+        UserCoupon userCoupon = UserCoupon.issue(userId, coupon, LocalDateTime.now());
         UserCoupon saved = userCouponRepository.save(userCoupon);
 
         // 응답 변환
@@ -112,6 +113,7 @@ public class CouponService {
      * 쿠폰 사용
      */
     @Transactional
+    @DistributedLock(key = "'userId:' + #userId + ':coupon:' + #couponId")
     public UserCoupon useCoupon(Long userId, Long couponId) {
         User user = userRepository.findById(userId);
         if (user == null) {
