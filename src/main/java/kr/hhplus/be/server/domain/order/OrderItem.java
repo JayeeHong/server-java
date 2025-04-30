@@ -1,5 +1,6 @@
 package kr.hhplus.be.server.domain.order;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -13,42 +14,50 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "order_items")
 @Getter
+@Table(name = "order_item")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class OrderItem {
 
     @Id
+    @Column(name = "order_item_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "order_id")
+    private Order order;
+
     private Long productId;
+
+    private String productName;
+
+    private Long unitPrice;
 
     private int quantity;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "order_id", nullable = false)
-    private Order order;
-
-    private OrderItem(Long id, Long productId, int quantity) {
-        if (quantity <= 0) {
-            throw new IllegalArgumentException("수량은 1개 이상이어야 합니다.");
-        }
-
+    private OrderItem(Long id, Order order, Long productId, String productName, Long unitPrice, int quantity) {
         this.id = id;
+        this.order = order;
         this.productId = productId;
+        this.productName = productName;
+        this.unitPrice = unitPrice;
         this.quantity = quantity;
     }
 
-    public static OrderItem of(Long id, Long productId, int quantity) {
-        return new OrderItem(id, productId, quantity);
+    public static OrderItem of(Long id, Order order, Long productId, String productName, Long unitPrice, int quantity) {
+        return new OrderItem(id, order, productId, productName, unitPrice, quantity);
     }
 
-    public int calculateTotalPrice(int unitPrice) {
-        return unitPrice * quantity;
+    public static OrderItem create(Long productId, String productName, Long unitPrice, int quantity) {
+        return OrderItem.of(null, null, productId, productName, unitPrice, quantity);
     }
 
     public void setOrder(Order order) {
         this.order = order;
+    }
+
+    public long getPrice() {
+        return unitPrice * quantity;
     }
 }
