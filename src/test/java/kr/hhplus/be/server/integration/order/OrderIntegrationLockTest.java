@@ -20,6 +20,7 @@ import kr.hhplus.be.server.domain.coupon.Coupon;
 import kr.hhplus.be.server.domain.coupon.CouponRepository;
 import kr.hhplus.be.server.domain.product.Product;
 import kr.hhplus.be.server.domain.product.ProductRepository;
+import kr.hhplus.be.server.domain.product.ProductStatus;
 import kr.hhplus.be.server.domain.user.User;
 import kr.hhplus.be.server.domain.user.UserRepository;
 import kr.hhplus.be.server.interfaces.order.OrderRequest.Command;
@@ -75,7 +76,7 @@ public class OrderIntegrationLockTest {
 
         // given
         // 1. 상품 등록
-        Product product = Product.create("productA", 10000, 100);
+        Product product = Product.create("productA", 10000, 100, ProductStatus.SELLING);
         productRepository.save(product);
 
         // 2. 사용자 등록
@@ -104,7 +105,7 @@ public class OrderIntegrationLockTest {
         Product findProduct = productRepository.findById(product.getId());
         int userBalance = balanceRepository.getTotalBalance(user.getId());
 
-        assertThat(findProduct.getStock()).isEqualTo(98);
+        assertThat(findProduct.getQuantity()).isEqualTo(98);
         assertThat(userBalance).isEqualTo(980000);
     }
 
@@ -113,7 +114,7 @@ public class OrderIntegrationLockTest {
     void placeOrderWithLockFailTest_dueToLock() throws InterruptedException {
         // given
         // 1. 상품 등록
-        Product product = Product.create("productA", 10000, 100);
+        Product product = Product.create("productA", 10000, 100, ProductStatus.SELLING);
         productRepository.save(product);
 
         // 2. 사용자 등록

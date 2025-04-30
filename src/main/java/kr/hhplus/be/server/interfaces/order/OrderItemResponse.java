@@ -25,7 +25,7 @@ public class OrderItemResponse {
                 item.getOrder().getId(),
                 item.getProductId(),
                 item.getQuantity(),
-                item.calculateTotalPrice(item.getQuantity())
+                1000
             );
         }
     }

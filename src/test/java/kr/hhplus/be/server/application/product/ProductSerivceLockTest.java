@@ -10,6 +10,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import kr.hhplus.be.server.config.redis.RedissonLockManager;
 import kr.hhplus.be.server.domain.product.Product;
 import kr.hhplus.be.server.domain.product.ProductRepository;
+import kr.hhplus.be.server.domain.product.ProductStatus;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
@@ -38,7 +39,7 @@ public class ProductSerivceLockTest {
     void decreaseStockRedissonSuccessTest() {
 
         // given
-        Product product = Product.create("productA", 1000, 10);
+        Product product = Product.create("productA", 1000, 10, ProductStatus.SELLING);
         productRepository.save(product);
 
         // when
@@ -46,7 +47,7 @@ public class ProductSerivceLockTest {
 
         // then
         Product updatedProduct = productRepository.findById(product.getId());
-        assertThat(updatedProduct.getStock()).isEqualTo(9);
+        assertThat(updatedProduct.getQuantity()).isEqualTo(9);
     }
 
     @Test
@@ -54,7 +55,7 @@ public class ProductSerivceLockTest {
     void decreaseStockPessimisticLockTest() throws InterruptedException {
 
         // given
-        Product product = Product.create("productA", 1000, 10);
+        Product product = Product.create("productA", 1000, 10, ProductStatus.SELLING);
         productRepository.save(product);
 
         // when
@@ -83,8 +84,8 @@ public class ProductSerivceLockTest {
 
         // then
         Product updated = productRepository.findById(product.getId());
-        System.out.println("최종 재고: " + updated.getStock());
-        assertEquals(updated.getStock(), 8);
+        System.out.println("최종 재고: " + updated.getQuantity());
+        assertEquals(updated.getQuantity(), 8);
         assertEquals(catchCount.get(), 0);
     }
 
@@ -93,7 +94,7 @@ public class ProductSerivceLockTest {
     void decreaseStockOptimisticLockTest() throws InterruptedException {
 
         // given
-        Product product = Product.create("productA", 1000, 10);
+        Product product = Product.create("productA", 1000, 10, ProductStatus.SELLING);
         productRepository.save(product);
 
         // when
@@ -122,8 +123,8 @@ public class ProductSerivceLockTest {
 
         // then
         Product updated = productRepository.findById(product.getId());
-        System.out.println("최종 재고: " + updated.getStock());
-        assertEquals(updated.getStock(), 8);
+        System.out.println("최종 재고: " + updated.getQuantity());
+        assertEquals(updated.getQuantity(), 8);
         assertEquals(catchCount.get(), 0);
     }
 
@@ -132,7 +133,7 @@ public class ProductSerivceLockTest {
     void decreaseStockOptimisticLockFailTest() throws InterruptedException {
 
         // given
-        Product product = Product.create("productA", 1000, 10);
+        Product product = Product.create("productA", 1000, 10, ProductStatus.SELLING);
         productRepository.save(product);
 
         // when
@@ -161,8 +162,8 @@ public class ProductSerivceLockTest {
 
         // then
         Product updated = productRepository.findById(product.getId());
-        System.out.println("최종 재고: " + updated.getStock());
-        assertEquals(updated.getStock(), 9);
+        System.out.println("최종 재고: " + updated.getQuantity());
+        assertEquals(updated.getQuantity(), 9);
         assertEquals(catchCount.get(), 1);
     }
 

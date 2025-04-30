@@ -3,6 +3,7 @@ package kr.hhplus.be.server.application.product;
 import kr.hhplus.be.server.config.redis.RedissonLockManager;
 import kr.hhplus.be.server.domain.product.Product;
 import kr.hhplus.be.server.domain.product.ProductRepository;
+import kr.hhplus.be.server.domain.product.ProductStatus;
 import kr.hhplus.be.server.interfaces.product.ProductResponse.ProductDto;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -22,8 +23,8 @@ class ProductServiceTest {
     @DisplayName("상품 목록 조회가 성공적으로 수행된다")
     void getAllProducts_success() {
         List<Product> products = List.of(
-            Product.of(1L, "상품A", 1000, 10),
-            Product.of(2L, "상품B", 2000, 20)
+            Product.of(1L, "상품A", 1000, 10, ProductStatus.SELLING),
+            Product.of(2L, "상품B", 2000, 20, ProductStatus.SELLING)
         );
         when(productRepository.findAll()).thenReturn(products);
 

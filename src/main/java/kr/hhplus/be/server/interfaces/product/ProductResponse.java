@@ -20,7 +20,7 @@ public class ProductResponse {
         private final String name;
 
         @Schema(description = "가격", example = "1500000")
-        private final int price;
+        private final long price;
 
         @Schema(description = "남은 재고 수량", example = "8")
         private final int stock;
@@ -40,11 +40,11 @@ public class ProductResponse {
 
     public static List<ProductDto> translate(List<kr.hhplus.be.server.domain.product.Product> products) {
         return products.stream()
-            .map(p -> new ProductDto(p.getId(), p.getName(), p.getPrice(), p.getStock()))
+            .map(p -> new ProductDto(p.getId(), p.getName(), p.getPrice(), p.getQuantity()))
             .toList();
     }
 
     public static ProductDto from(kr.hhplus.be.server.domain.product.Product product) {
-        return new ProductDto(product.getId(), product.getName(), product.getPrice(), product.getStock());
+        return new ProductDto(product.getId(), product.getName(), product.getPrice(), product.getQuantity());
     }
 }

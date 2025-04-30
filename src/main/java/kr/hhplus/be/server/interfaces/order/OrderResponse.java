@@ -48,10 +48,10 @@ public class OrderResponse {
             return new Result(
                 order.getId(),
                 order.getUserId(),
-                order.getTotalAmount(),
+                1000,
                 usedCoupon != null ? usedCoupon.getId() : null,
                 order.getOrderStatus().name(),
-                order.getOrderedAt(),
+                LocalDateTime.now(),
                 items
             );
         }

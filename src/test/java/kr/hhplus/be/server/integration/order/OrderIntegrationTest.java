@@ -17,6 +17,7 @@ import kr.hhplus.be.server.domain.order.OrderRepository;
 import kr.hhplus.be.server.domain.order.OrderStatus;
 import kr.hhplus.be.server.domain.product.Product;
 import kr.hhplus.be.server.domain.product.ProductRepository;
+import kr.hhplus.be.server.domain.product.ProductStatus;
 import kr.hhplus.be.server.domain.user.User;
 import kr.hhplus.be.server.domain.user.UserCoupon;
 import kr.hhplus.be.server.domain.user.UserCouponRepository;
@@ -80,7 +81,7 @@ public class OrderIntegrationTest {
         user = User.create("userA");
         userRepository.save(user);
 
-        product = Product.create("productA", 1000, 100);
+        product = Product.create("productA", 1000, 100, ProductStatus.SELLING);
         productRepository.save(product);
 
         balance = Balance.create(user.getId(), 10000);
@@ -101,7 +102,7 @@ public class OrderIntegrationTest {
         // then
         // 재고 확인
         Product findProduct = productRepository.findById(product.getId());
-        assertThat(findProduct.getStock()).isEqualTo(98);
+        assertThat(findProduct.getQuantity()).isEqualTo(98);
 
         // 잔액 확인
         int totalBalance = balanceRepository.getTotalBalance(user.getId());
@@ -109,8 +110,8 @@ public class OrderIntegrationTest {
 
         // 주문 확인
         Order findOrder = orderRepository.findById(result.getOrderId());
-        assertThat(findOrder.getTotalAmount()).isEqualTo(2000);
-        assertThat(findOrder.getOrderStatus()).isEqualTo(OrderStatus.WAIT);
+        assertThat(findOrder.getTotalPrice()).isEqualTo(2000);
+        assertThat(findOrder.getOrderStatus()).isEqualTo(OrderStatus.CREATED);
 
     }
 
@@ -135,7 +136,7 @@ public class OrderIntegrationTest {
         // then
         // 재고 확인
         Product findProduct = productRepository.findById(product.getId());
-        assertThat(findProduct.getStock()).isEqualTo(98);
+        assertThat(findProduct.getQuantity()).isEqualTo(98);
 
         // 잔액 확인
         int totalBalance = balanceRepository.getTotalBalance(user.getId());

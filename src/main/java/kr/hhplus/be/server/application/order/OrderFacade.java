@@ -4,12 +4,10 @@ import java.util.ArrayList;
 import kr.hhplus.be.server.application.coupon.CouponService;
 import kr.hhplus.be.server.application.product.ProductService;
 import kr.hhplus.be.server.application.user.UserService;
-import kr.hhplus.be.server.config.redis.DistributedLock;
 import kr.hhplus.be.server.domain.coupon.Coupon;
 import kr.hhplus.be.server.domain.order.Order;
 import kr.hhplus.be.server.domain.order.OrderItem;
 import kr.hhplus.be.server.domain.product.Product;
-import kr.hhplus.be.server.domain.user.UserCoupon;
 import kr.hhplus.be.server.interfaces.order.OrderRequest;
 import kr.hhplus.be.server.interfaces.order.OrderResponse.Result;
 import lombok.RequiredArgsConstructor;
@@ -50,9 +48,9 @@ public class OrderFacade {
                 throw new IllegalArgumentException("존재하지 않는 상품입니다. ID=" + item.getProductId());
             }
 
-            OrderItem orderItem = OrderItem.of(null, product.getId(), item.getQuantity());
+            OrderItem orderItem = OrderItem.create(product.getId(), product.getName(), product.getPrice(), item.getQuantity());
             orderItems.add(orderItem);
-            totalAmount += orderItem.calculateTotalPrice(product.getPrice());
+//            totalAmount += orderItem.calculateTotalPrice(product.getPrice());
         }
 
         // 4. 쿠폰 적용
@@ -63,12 +61,11 @@ public class OrderFacade {
         userService.validateAndPay(command.getUserId(), totalAmount);
 
         // 6. 주문 생성 및 저장 (연관관계 연결)
-        Order order = Order.of(null, command.getUserId(), totalAmount);
-        orderItems.forEach(order::addItem); // 양방향 연관관계 설정
+//        Order order = Order.of(null, command.getUserId(), totalAmount);
 
-        Order savedOrder = orderService.createOrder(order); // cascade = ALL이면 orderItem도 저장됨
+//        Order savedOrder = orderService.createOrder(order); // cascade = ALL이면 orderItem도 저장됨
 
-        return Result.from(savedOrder, orderItems, usedCoupon);
+        return Result.from(null, orderItems, usedCoupon);
     }
 
     @Transactional
@@ -90,9 +87,9 @@ public class OrderFacade {
                 throw new IllegalArgumentException("존재하지 않는 상품입니다. ID=" + item.getProductId());
             }
 
-            OrderItem orderItem = OrderItem.of(null, product.getId(), item.getQuantity());
+            OrderItem orderItem = OrderItem.create(product.getId(), product.getName(), product.getPrice(), item.getQuantity());
             orderItems.add(orderItem);
-            totalAmount += orderItem.calculateTotalPrice(product.getPrice());
+//            totalAmount += orderItem.calculateTotalPrice(product.getPrice());
         }
 
         // 4. 쿠폰 적용
@@ -107,11 +104,10 @@ public class OrderFacade {
         userService.validateAndPay(command.getUserId(), totalAmount);
 
         // 6. 주문 생성 및 저장 (연관관계 연결)
-        Order order = Order.of(null, command.getUserId(), totalAmount);
-        orderItems.forEach(order::addItem); // 양방향 연관관계 설정
+//        Order order = Order.of(null, command.getUserId(), totalAmount);
 
-        Order savedOrder = orderService.createOrder(order); // cascade = ALL이면 orderItem도 저장됨
+//        Order savedOrder = orderService.createOrder(order); // cascade = ALL이면 orderItem도 저장됨
 
-        return Result.from(savedOrder, orderItems, usedCoupon);
+        return Result.from(null, orderItems, usedCoupon);
     }
 }

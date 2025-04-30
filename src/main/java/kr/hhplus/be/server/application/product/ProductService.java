@@ -55,7 +55,7 @@ public class ProductService {
         List<Product> updatedProducts = new ArrayList<>();
         for (Product product : products) {
             int orderQty = quantityMap.get(product.getId());
-            if (product.getStock() < orderQty) {
+            if (product.getQuantity() < orderQty) {
                 throw new IllegalStateException("재고가 부족합니다.");
             }
             product.decreaseStock(orderQty);
@@ -114,7 +114,7 @@ public class ProductService {
         if (product == null) {
             throw new IllegalArgumentException("존재하지 않는 상품입니다.");
         }
-        return product.getPrice();
+        return (int) product.getPrice();
     }
 
     @CacheEvict(cacheNames = "product", key = "#productId")

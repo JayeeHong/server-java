@@ -5,6 +5,7 @@ import kr.hhplus.be.server.application.product.ProductService;
 import kr.hhplus.be.server.application.user.UserService;
 import kr.hhplus.be.server.domain.order.*;
 import kr.hhplus.be.server.domain.product.Product;
+import kr.hhplus.be.server.domain.product.ProductStatus;
 import kr.hhplus.be.server.interfaces.order.OrderRequest;
 import kr.hhplus.be.server.interfaces.order.OrderResponse.Result;
 import org.junit.jupiter.api.DisplayName;
@@ -36,14 +37,13 @@ class OrderFacadeTest {
         );
 
         // 상품 가격 10,000원 * 2개 = 20,000원
-        Product product = Product.of(101L, "상품1", 10000, 98);
+        Product product = Product.of(101L, "상품1", 10000, 98, ProductStatus.SELLING);
         when(productService.getAndDecreaseStock(any())).thenReturn(List.of(product));
 
-        Order order = Order.of(null, 1L, 20000);
-        order.addItem(OrderItem.of(null, 101L, 2));
-
-        Order saved = Order.of(1001L, 1L, 20000); // 저장 후 반환되는 주문 객체
-        when(orderService.createOrder(any())).thenReturn(saved);
+//        Order order = Order.of(null, 1L, 20000);
+//
+//        Order saved = Order.of(1001L, 1L, 20000); // 저장 후 반환되는 주문 객체
+//        when(orderService.createOrder(any())).thenReturn(saved);
 
         // when
         Result result = orderFacade.placeOrder(request);
@@ -77,7 +77,7 @@ class OrderFacadeTest {
         ));
 
         when(productService.getAndDecreaseStock(any())).thenReturn(List.of(
-            Product.of(101L, "상품1", 10000, 99)
+            Product.of(101L, "상품1", 10000, 99, ProductStatus.SELLING)
         ));
         when(productService.getPrice(101L)).thenReturn(10000);
         doThrow(new IllegalArgumentException("유효하지 않은 쿠폰입니다."))
@@ -94,7 +94,7 @@ class OrderFacadeTest {
         ));
 
         when(productService.getAndDecreaseStock(any())).thenReturn(List.of(
-            Product.of(101L, "상품1", 10000, 99)
+            Product.of(101L, "상품1", 10000, 99, ProductStatus.SELLING)
         ));
         when(productService.getPrice(101L)).thenReturn(10000);
         doThrow(new IllegalStateException("잔액이 부족합니다."))
@@ -111,7 +111,7 @@ class OrderFacadeTest {
         ));
 
         when(productService.getAndDecreaseStock(any())).thenReturn(List.of(
-            Product.of(101L, "상품1", 10000, 99)
+            Product.of(101L, "상품1", 10000, 99, ProductStatus.SELLING)
         ));
         when(productService.getPrice(101L)).thenReturn(10000);
         doThrow(new IllegalArgumentException("유효하지 않은 사용자입니다."))

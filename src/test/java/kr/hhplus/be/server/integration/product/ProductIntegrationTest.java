@@ -7,6 +7,7 @@ import java.util.List;
 import kr.hhplus.be.server.application.product.ProductService;
 import kr.hhplus.be.server.domain.product.Product;
 import kr.hhplus.be.server.domain.product.ProductRepository;
+import kr.hhplus.be.server.domain.product.ProductStatus;
 import kr.hhplus.be.server.interfaces.order.OrderRequest;
 import kr.hhplus.be.server.interfaces.product.ProductResponse.ProductDto;
 import org.junit.jupiter.api.BeforeEach;
@@ -34,7 +35,7 @@ public class ProductIntegrationTest {
 
     @BeforeEach
     void setUp() {
-        product = Product.create("productB", 1000, 100);
+        product = Product.create("productB", 1000, 100, ProductStatus.SELLING);
         productRepository.save(product);
     }
 
