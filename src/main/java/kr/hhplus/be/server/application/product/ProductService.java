@@ -3,6 +3,9 @@ package kr.hhplus.be.server.application.product;
 import kr.hhplus.be.server.config.redis.DistributedLock;
 import kr.hhplus.be.server.config.redis.RedissonLockManager;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.retry.annotation.Backoff;
 
@@ -62,11 +65,13 @@ public class ProductService {
         return updatedProducts;
     }
 
+    @Cacheable(cacheNames = "product", key = "#productId")
     @Transactional(readOnly = true)
     public Product getProductInfo(Long productId) {
         return productRepository.findById(productId);
     }
 
+    @CachePut(cacheNames = "product", key = "#productId")
     @Transactional
     @DistributedLock(key = "'product:' + #productId")
     public Product decreaseStockWithRedisson(Long productId, int quantity) {
@@ -110,6 +115,13 @@ public class ProductService {
             throw new IllegalArgumentException("존재하지 않는 상품입니다.");
         }
         return product.getPrice();
+    }
+
+    @CacheEvict(cacheNames = "product", key = "#productId")
+    @Transactional
+    public Long deleteProduct(Long productId) {
+        productRepository.deleteById(productId);
+        return productId;
     }
 
 }
