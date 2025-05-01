@@ -1,11 +1,8 @@
 package kr.hhplus.be.server.application.order;
 
 import java.util.ArrayList;
-import kr.hhplus.be.server.application.coupon.CouponService;
 import kr.hhplus.be.server.application.product.ProductService;
-import kr.hhplus.be.server.application.user.UserService;
 import kr.hhplus.be.server.domain.coupon.Coupon;
-import kr.hhplus.be.server.domain.order.Order;
 import kr.hhplus.be.server.domain.order.OrderItem;
 import kr.hhplus.be.server.domain.product.Product;
 import kr.hhplus.be.server.interfaces.order.OrderRequest;
@@ -23,9 +20,6 @@ import org.springframework.transaction.annotation.Transactional;
 public class OrderFacade {
 
     private final ProductService productService;
-    private final CouponService couponService;
-    private final UserService userService;
-    private final OrderService orderService;
 
     public Result placeOrderWithLock(OrderRequest.Command command) {
         // 1. 상품 조회 및 재고 차감
@@ -58,7 +52,7 @@ public class OrderFacade {
         Coupon usedCoupon = null;
 
         // 5. 잔액 차감
-        userService.validateAndPay(command.getUserId(), totalAmount);
+//        userService.validateAndPay(command.getUserId(), totalAmount);
 
         // 6. 주문 생성 및 저장 (연관관계 연결)
 //        Order order = Order.of(null, command.getUserId(), totalAmount);
@@ -101,7 +95,7 @@ public class OrderFacade {
 //        }
 
         // 5. 잔액 차감
-        userService.validateAndPay(command.getUserId(), totalAmount);
+//        userService.validateAndPay(command.getUserId(), totalAmount);
 
         // 6. 주문 생성 및 저장 (연관관계 연결)
 //        Order order = Order.of(null, command.getUserId(), totalAmount);
