@@ -39,4 +39,20 @@ public class BalanceCommand {
         }
     }
 
+    @Getter
+    public static class Save {
+
+        private final Long userId;
+        private final Long amount;
+
+        private Save(Long userId, Long amount) {
+            this.userId = userId;
+            this.amount = amount;
+        }
+
+        public static Save of(Long userId, Long amount) {
+            return new Save(userId, amount);
+        }
+    }
+
 }

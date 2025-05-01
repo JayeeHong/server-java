@@ -1,5 +1,6 @@
 package kr.hhplus.be.server.infrastructure.balance;
 
+import java.util.List;
 import java.util.Optional;
 import kr.hhplus.be.server.domain.balance.Balance;
 import kr.hhplus.be.server.domain.balance.BalanceRepository;
@@ -11,8 +12,8 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class BalanceRepositoryImpl implements BalanceRepository {
 
-    private BalanceJpaRepository balanceJpaRepository;
-    private BalanceTransactionJpaRepository balanceTransactionJpaRepository;
+    private final BalanceJpaRepository balanceJpaRepository;
+    private final BalanceTransactionJpaRepository balanceTransactionJpaRepository;
 
     @Override
     public Optional<Balance> findOptionalByUserId(Long userId) {
@@ -27,5 +28,10 @@ public class BalanceRepositoryImpl implements BalanceRepository {
     @Override
     public BalanceTransaction saveTransaction(BalanceTransaction balanceTransaction) {
         return balanceTransactionJpaRepository.save(balanceTransaction);
+    }
+
+    @Override
+    public List<BalanceTransaction> findAllTransacitons() {
+        return balanceTransactionJpaRepository.findAll();
     }
 }

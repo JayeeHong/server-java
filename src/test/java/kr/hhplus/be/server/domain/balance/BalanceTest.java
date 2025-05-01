@@ -13,9 +13,9 @@ class BalanceTest {
     @DisplayName("잔액 생성 시 초기 값은 0 초과 10_000_000 이하여야 한다.")
     void isValidCreateBalanceTest() {
         // when, then
-        assertThatThrownBy(() -> Balance.create(1L, -1))
+        assertThatThrownBy(() -> Balance.of(1L, -1))
             .isInstanceOf(IllegalArgumentException.class);
-        assertThatThrownBy(() -> Balance.create(1L, 10_000_001L))
+        assertThatThrownBy(() -> Balance.of(1L, 10_000_001L))
             .isInstanceOf(IllegalArgumentException.class);
     }
 
@@ -24,7 +24,7 @@ class BalanceTest {
     void isValidChargeAmountMinTest() {
 
         // given
-        Balance balance = Balance.create(1L, 1_000L);
+        Balance balance = Balance.of(1L, 1_000L);
 
         // when, then
         assertThatThrownBy(() -> balance.charge(-1))
@@ -36,7 +36,7 @@ class BalanceTest {
     void isValidChargeAmountMaxTest() {
 
         // given
-        Balance balance = Balance.create(1L, 1_000L);
+        Balance balance = Balance.of(1L, 1_000L);
 
         // when, then
         assertThatThrownBy(() -> balance.charge(9_999_001L))
@@ -48,7 +48,7 @@ class BalanceTest {
     void isValidUseAmountTest() {
 
         // given
-        Balance balance = Balance.create(1L, 1_000L);
+        Balance balance = Balance.of(1L, 1_000L);
 
         // when, then
         assertThatThrownBy(() -> balance.use(-1))
@@ -60,7 +60,7 @@ class BalanceTest {
     void isValidAfterUseAmountTest() {
 
         // given
-        Balance balance = Balance.create(1L, 1_000L);
+        Balance balance = Balance.of(1L, 1_000L);
 
         // when, then
         assertThatThrownBy(() -> balance.use(1_001L))
@@ -72,18 +72,13 @@ class BalanceTest {
     void chargeAmountSuccessTest() {
 
         // given
-        Balance balance = Balance.create(1L, 1_000L);
+        Balance balance = Balance.of(1L, 1_000L);
 
         // when
         balance.charge(1_000L);
 
         // then
         assertEquals(2_000L, balance.getAmount());
-        assertThat(balance.getBalanceTransactions()).hasSize(2)
-            .extracting("amount").containsExactly(1_000L, 1_000L);
-        assertThat(balance.getBalanceTransactions())
-            .extracting("transactionType")
-            .containsExactly(BalanceTransactionType.CHARGE, BalanceTransactionType.CHARGE);
     }
 
     @Test
@@ -91,17 +86,13 @@ class BalanceTest {
     void useAmountSuccessTest() {
 
         // given
-        Balance balance = Balance.create(1L, 1_000L);
+        Balance balance = Balance.of(1L, 1_000L);
 
         // when
         balance.use(1_000L);
 
         // then
         assertEquals(0, balance.getAmount());
-        assertThat(balance.getBalanceTransactions()).hasSize(2)
-            .extracting("amount").containsExactly(1_000L, -1_000L);
-        assertThat(balance.getBalanceTransactions())
-            .extracting("transactionType").containsExactly(BalanceTransactionType.CHARGE, BalanceTransactionType.USE);
     }
 
 }

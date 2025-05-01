@@ -1,5 +1,6 @@
 package kr.hhplus.be.server.domain.balance;
 
+import java.util.List;
 import java.util.Optional;
 import org.springframework.stereotype.Component;
 
@@ -12,4 +13,5 @@ public interface BalanceRepository {
 
     BalanceTransaction saveTransaction(BalanceTransaction balanceTransaction);
 
+    List<BalanceTransaction> findAllTransacitons();
 }

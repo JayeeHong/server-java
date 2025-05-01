@@ -1,5 +1,6 @@
 package kr.hhplus.be.server.domain.balance;
 
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -14,7 +15,7 @@ public class BalanceService {
     @Transactional
     public void chargeBalance(BalanceCommand.Charge command) {
         Balance balance = balanceRepository.findOptionalByUserId(command.getUserId())
-            .orElseGet(() -> balanceRepository.save(Balance.create(command.getUserId(), 0L)));
+            .orElseGet(() -> balanceRepository.save(Balance.of(command.getUserId(), 0L)));
 
         balance.charge(command.getAmount());
 
@@ -26,7 +27,7 @@ public class BalanceService {
     @Transactional
     public void useBalance(BalanceCommand.Use command) {
         Balance balance = balanceRepository.findOptionalByUserId(command.getUserId())
-            .orElseGet(() -> balanceRepository.save(Balance.create(command.getUserId(), 0L)));
+            .orElseGet(() -> balanceRepository.save(Balance.of(command.getUserId(), 0L)));
 
         balance.use(command.getAmount());
 
@@ -41,5 +42,19 @@ public class BalanceService {
             .orElse(0L);
 
         return BalanceInfo.Balance.of(amount);
+    }
+
+    @Transactional
+    public void saveBalance(BalanceCommand.Save command) {
+        Balance balance = Balance.of(command.getUserId(), command.getAmount());
+        balanceRepository.save(balance);
+    }
+
+    public BalanceTransactionInfo.Transactions findAllTransactions() {
+        List<BalanceTransaction> transactions = balanceRepository.findAllTransacitons();
+
+        return BalanceTransactionInfo.Transactions.of(transactions.stream()
+            .map(BalanceTransactionInfo.Transaction::toTransactionInfo)
+            .toList());
     }
 }

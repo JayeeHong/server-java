@@ -32,24 +32,19 @@ public class Balance {
 
     private long amount;
 
-    @OneToMany(mappedBy = "balance", cascade = CascadeType.ALL)
-    private List<BalanceTransaction> balanceTransactions = new ArrayList<>();
-    
     private Balance(Long id, Long userId, long amount) {
         this.id = id;
         this.userId = userId;
         this.amount = amount;
-
-        addChargeTransaction(amount);
     }
 
     public static Balance of(Long userId, long amount) {
+        validateAmount(amount);
         return new Balance(null, userId, amount);
     }
 
-    public static Balance create(Long userId, long amount) {
-        validateAmount(amount);
-        return of(userId, amount);
+    public static Balance create(Long userId) {
+        return of(userId, 0L);
     }
 
     public void charge(long amount) {
@@ -62,7 +57,6 @@ public class Balance {
         }
 
         this.amount += amount;
-        addChargeTransaction(amount);
     }
 
     public void use(long amount) {
@@ -75,27 +69,15 @@ public class Balance {
         }
 
         this.amount -= amount;
-        addUseTransaction(amount);
     }
 
     private static void validateAmount(long amount) {
-        if (amount < 1) {
-            throw new IllegalArgumentException("금액은 0보다 커야 합니다.");
+        if (amount < 0) {
+            throw new IllegalArgumentException("금액은 0 이상이어야 합니다.");
         }
 
         if (amount > MAX_BALANCE_AMOUNT) {
             throw new IllegalArgumentException("최대 금액을 초과할 수 없습니다.");
         }
     }
-
-    private void addChargeTransaction(long amount) {
-        BalanceTransaction transaction = BalanceTransaction.charge(this, amount);
-        this.balanceTransactions.add(transaction);
-    }
-
-    private void addUseTransaction(long amount) {
-        BalanceTransaction transaction = BalanceTransaction.use(this, amount);
-        this.balanceTransactions.add(transaction);
-    }
-
 }
