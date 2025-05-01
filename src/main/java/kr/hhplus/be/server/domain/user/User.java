@@ -33,4 +33,8 @@ public class User {
     public static User create(String name) {
         return User.of(null, name);
     }
+
+    public static UserInfo.User toUserInfo(User user) {
+        return UserInfo.User.of(user.getId(), user.getName());
+    }
 }
