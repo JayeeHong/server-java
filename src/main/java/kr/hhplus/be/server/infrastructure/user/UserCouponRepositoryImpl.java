@@ -4,26 +4,32 @@ import java.util.List;
 import kr.hhplus.be.server.domain.user.UserCoupon;
 import kr.hhplus.be.server.domain.user.UserCouponRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Repository;
+import org.springframework.stereotype.Component;
 
-@Repository
+@Component
 @RequiredArgsConstructor
 public class UserCouponRepositoryImpl implements UserCouponRepository {
 
-    private final JpaUserCouponRepository jpaUserCouponRepository;
-
-    @Override
-    public UserCoupon save(UserCoupon userCoupon) {
-        return jpaUserCouponRepository.save(userCoupon);
-    }
-
-    @Override
-    public List<UserCoupon> findAllByUserId(Long userId) {
-        return jpaUserCouponRepository.findAllByUserId(userId);
-    }
+    private final UserCouponJpaRepository userCouponJpaRepository;
 
     @Override
     public UserCoupon findByUserIdAndCouponId(Long userId, Long couponId) {
-        return jpaUserCouponRepository.findByUserIdAndCouponId(userId, couponId);
+        return userCouponJpaRepository.findByUserIdAndCouponId(userId, couponId).orElse(null);
+    }
+
+    @Override
+    public UserCoupon save(UserCoupon userCoupon) {
+        return userCouponJpaRepository.save(userCoupon);
+    }
+
+    @Override
+    public UserCoupon findById(Long id) {
+        return userCouponJpaRepository.findById(id)
+            .orElseThrow(() -> new IllegalArgumentException("사용자가 보유한 쿠폰을 찾을 수 없습니다."));
+    }
+
+    @Override
+    public List<UserCoupon> findByUserIdAndUsable(Long userId) {
+        return userCouponJpaRepository.findByUserIdAndUsedAt(userId, null);
     }
 }
