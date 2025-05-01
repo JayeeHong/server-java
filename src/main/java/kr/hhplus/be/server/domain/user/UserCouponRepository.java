@@ -1,12 +1,17 @@
 package kr.hhplus.be.server.domain.user;
 
 import java.util.List;
+import org.springframework.stereotype.Component;
 
+@Component
 public interface UserCouponRepository {
+
+    UserCoupon findByUserIdAndCouponId(Long userId, Long couponId);
 
     UserCoupon save(UserCoupon userCoupon);
 
-    List<UserCoupon> findAllByUserId(Long userId);
+    UserCoupon findById(Long id);
 
-    UserCoupon findByUserIdAndCouponId(Long userId, Long couponId);
+    List<UserCoupon> findByUserIdAndUsable(Long userId);
+
 }

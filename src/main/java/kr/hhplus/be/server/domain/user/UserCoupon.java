@@ -44,12 +44,12 @@ public class UserCoupon {
         this.usedAt = usedAt;
     }
 
-    public UserCoupon of(Long id, Long userId, Long couponId) {
+    public static UserCoupon of(Long id, Long userId, Long couponId) {
         return new UserCoupon(id, userId, couponId, LocalDateTime.now(), null);
     }
 
-    public static UserCoupon create(Long userId, Long couponId, LocalDateTime now) {
-        return new UserCoupon(null, userId, couponId, now, null);
+    public static UserCoupon create(Long userId, Long couponId) {
+        return UserCoupon.of(null, userId, couponId);
     }
 
     public void use() {
