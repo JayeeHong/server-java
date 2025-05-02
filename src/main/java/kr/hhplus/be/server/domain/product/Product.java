@@ -31,9 +31,6 @@ public class Product {
     @Enumerated(EnumType.STRING)
     private ProductStatus status;
 
-    @Version
-    private Long version;
-
     private Product(Long id, String name, long price, int quantity, ProductStatus status) {
         this.id = id;
         this.name = name;

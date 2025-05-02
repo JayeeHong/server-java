@@ -3,42 +3,29 @@ package kr.hhplus.be.server.infrastructure.product;
 import java.util.List;
 import kr.hhplus.be.server.domain.product.Product;
 import kr.hhplus.be.server.domain.product.ProductRepository;
+import kr.hhplus.be.server.domain.product.ProductStatus;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Repository;
+import org.springframework.stereotype.Component;
 
-@Repository
+@Component
 @RequiredArgsConstructor
 public class ProductRepositoryImpl implements ProductRepository {
 
-    private final JpaProductRepository jpaProductRepository;
+    private final ProductJpaRepository productJpaRepository;
 
     @Override
-    public List<Product> findAll() {
-        return jpaProductRepository.findAll();
+    public Product save(Product product) {
+        return productJpaRepository.save(product);
     }
 
     @Override
     public Product findById(Long productId) {
-        return jpaProductRepository.findById(productId).orElse(null);
+        return productJpaRepository.findById(productId)
+            .orElseThrow(() -> new IllegalArgumentException("상품이 존재하지 않습니다."));
     }
 
     @Override
-    public Product findByIdWithPessimisticLock(Long productId) {
-        return jpaProductRepository.findByIdWithPessimisticLock(productId);
-    }
-
-    @Override
-    public List<Product> findAllByIdIn(List<Long> productIds) {
-        return jpaProductRepository.findAllById(productIds);
-    }
-
-    @Override
-    public Product save(Product product) {
-        return jpaProductRepository.save(product);
-    }
-
-    @Override
-    public void deleteById(Long productId) {
-        jpaProductRepository.deleteById(productId);
+    public List<Product> findByStatusIn(List<ProductStatus> statuses) {
+        return productJpaRepository.findByStatusIn(statuses);
     }
 }
