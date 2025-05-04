@@ -8,7 +8,9 @@ public interface OrderRepository {
 
     Order findById(Long id);
 
-    List<Order> findAllByUserId(Long userId);
+    List<OrderItem> findOrderIdsIn(List<Long> orderIds);
+
+    List<OrderInfo.PaidItem> findPaidItems(OrderCommand.PaidItems command);
 
     void deleteById(Long id);
 }

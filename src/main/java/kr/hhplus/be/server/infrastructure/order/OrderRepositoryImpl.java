@@ -2,34 +2,42 @@ package kr.hhplus.be.server.infrastructure.order;
 
 import java.util.List;
 import kr.hhplus.be.server.domain.order.Order;
+import kr.hhplus.be.server.domain.order.OrderCommand.PaidItems;
+import kr.hhplus.be.server.domain.order.OrderInfo.PaidItem;
+import kr.hhplus.be.server.domain.order.OrderItem;
 import kr.hhplus.be.server.domain.order.OrderRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Repository;
+import org.springframework.stereotype.Component;
 
-@Repository
+@Component
 @RequiredArgsConstructor
 public class OrderRepositoryImpl implements OrderRepository {
 
-    private final JpaOrderRepository jpaOrderRepository;
+    private final OrderJpaRepository orderJpaRepository;
 
     @Override
     public Order save(Order order) {
-        return jpaOrderRepository.save(order);
+        return orderJpaRepository.save(order);
     }
 
     @Override
     public Order findById(Long orderId) {
-        return jpaOrderRepository.findById(orderId)
+        return orderJpaRepository.findById(orderId)
             .orElseThrow(() -> new IllegalArgumentException("해당 주문이 존재하지 않습니다."));
     }
 
     @Override
-    public List<Order> findAllByUserId(Long userId) {
-        return jpaOrderRepository.findAllByUserId(userId);
+    public List<OrderItem> findOrderIdsIn(List<Long> orderIds) {
+        return List.of();
+    }
+
+    @Override
+    public List<PaidItem> findPaidItems(PaidItems command) {
+        return List.of();
     }
 
     @Override
     public void deleteById(Long orderId) {
-        jpaOrderRepository.deleteById(orderId);
+        orderJpaRepository.deleteById(orderId);
     }
 }
