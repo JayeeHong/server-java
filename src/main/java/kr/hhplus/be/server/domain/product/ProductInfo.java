@@ -5,40 +5,40 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-@NoArgsConstructor(access = AccessLevel.PACKAGE)
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class ProductInfo {
 
     @Getter
-    public static class OrderProducts {
+    public static class OrderItems {
 
-        private final List<OrderProduct> orderProducts;
+        private final List<OrderItem> orderItems;
 
-        private OrderProducts(List<OrderProduct> orderProducts) {
-            this.orderProducts = orderProducts;
+        private OrderItems(List<OrderItem> orderItems) {
+            this.orderItems = orderItems;
         }
 
-        public static OrderProducts of(List<OrderProduct> orderProducts) {
-            return new OrderProducts(orderProducts);
+        public static OrderItems of(List<OrderItem> orderItems) {
+            return new OrderItems(orderItems);
         }
     }
 
     @Getter
-    public static class OrderProduct {
+    public static class OrderItem {
 
         private final Long productId;
         private final String productName;
         private final long productPrice;
         private final int quantity;
 
-        private OrderProduct(Long productId, String productName, long productPrice, int quantity) {
+        private OrderItem(Long productId, String productName, long productPrice, int quantity) {
             this.productId = productId;
             this.productName = productName;
             this.productPrice = productPrice;
             this.quantity = quantity;
         }
 
-        public static OrderProduct of(Long productId, String productName, long productPrice, int quantity) {
-            return new OrderProduct(productId, productName, productPrice, quantity);
+        public static OrderItem of(Long productId, String productName, long productPrice, int quantity) {
+            return new OrderItem(productId, productName, productPrice, quantity);
         }
     }
 

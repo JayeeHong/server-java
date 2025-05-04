@@ -11,30 +11,30 @@ public class ProductCommand {
     @Getter
     public static class OrderProducts {
 
-        private final List<OrderProduct> orderProducts;
+        private final List<OrderItem> orderItems;
 
-        private OrderProducts(List<OrderProduct> orderProducts) {
-            this.orderProducts = orderProducts;
+        private OrderProducts(List<OrderItem> orderItems) {
+            this.orderItems = orderItems;
         }
 
-        public static OrderProducts of(List<OrderProduct> orderProducts) {
-            return new OrderProducts(orderProducts);
+        public static OrderProducts of(List<OrderItem> orderItems) {
+            return new OrderProducts(orderItems);
         }
     }
 
     @Getter
-    public static class OrderProduct {
+    public static class OrderItem {
 
         private final Long productId;
         private final int quantity;
 
-        private OrderProduct(Long productId, int quantity) {
+        private OrderItem(Long productId, int quantity) {
             this.productId = productId;
             this.quantity = quantity;
         }
 
-        public static OrderProduct of(Long productId, int quantity) {
-            return new OrderProduct(productId, quantity);
+        public static OrderItem of(Long productId, int quantity) {
+            return new OrderItem(productId, quantity);
         }
     }
 
@@ -65,8 +65,8 @@ public class ProductCommand {
             return new Product(productId);
         }
 
-        public static ProductInfo.OrderProduct toOrderProductInfo(kr.hhplus.be.server.domain.product.Product product) {
-            return ProductInfo.OrderProduct.of(
+        public static ProductInfo.OrderItem toOrderProductInfo(kr.hhplus.be.server.domain.product.Product product) {
+            return ProductInfo.OrderItem.of(
                 product.getId(), product.getName(), product.getPrice(), product.getQuantity()
             );
         }

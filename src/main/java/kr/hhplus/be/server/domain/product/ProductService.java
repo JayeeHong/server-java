@@ -2,7 +2,8 @@ package kr.hhplus.be.server.domain.product;
 
 import java.util.ArrayList;
 import java.util.List;
-import kr.hhplus.be.server.domain.product.ProductInfo.OrderProduct;
+import kr.hhplus.be.server.domain.product.ProductCommand.OrderItem;
+import kr.hhplus.be.server.domain.product.ProductInfo.OrderItems;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -12,17 +13,17 @@ public class ProductService {
 
     private final ProductRepository productRepository;
 
-    public ProductInfo.OrderProducts getOrderProducts(ProductCommand.OrderProducts command) {
+    public OrderItems getOrderProducts(ProductCommand.OrderProducts command) {
 
-        List<OrderProduct> orderProducts = new ArrayList<>();
+        List<ProductInfo.OrderItem> orderItems = new ArrayList<>();
 
-        command.getOrderProducts().forEach(pCommand -> {
+        command.getOrderItems().forEach(pCommand -> {
             Product product = getSellingProduct(pCommand);
-            ProductInfo.OrderProduct productInfo = ProductCommand.Product.toOrderProductInfo(product);
-            orderProducts.add(productInfo);
+            ProductInfo.OrderItem productInfo = ProductCommand.Product.toOrderProductInfo(product);
+            orderItems.add(productInfo);
         });
 
-        return ProductInfo.OrderProducts.of(orderProducts);
+        return OrderItems.of(orderItems);
     }
 
     public ProductInfo.Products getSellingProducts() {
@@ -50,7 +51,7 @@ public class ProductService {
         return ProductInfo.Products.of(products);
     }
 
-    public Product getSellingProduct(ProductCommand.OrderProduct command) {
+    public Product getSellingProduct(OrderItem command) {
         Product product = productRepository.findById(command.getProductId());
 
         if (product.cannotSelling()) {

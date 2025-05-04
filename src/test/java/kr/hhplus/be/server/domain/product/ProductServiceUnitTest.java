@@ -9,8 +9,9 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
-import kr.hhplus.be.server.domain.product.ProductCommand.OrderProduct;
+import kr.hhplus.be.server.domain.product.ProductCommand.OrderItem;
 import kr.hhplus.be.server.domain.product.ProductCommand.OrderProducts;
+import kr.hhplus.be.server.domain.product.ProductInfo.OrderItems;
 import kr.hhplus.be.server.domain.product.ProductInfo.Products;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -34,9 +35,9 @@ class ProductServiceUnitTest {
 
         // given
         OrderProducts command = mock(OrderProducts.class);
-        OrderProduct orderProductCommand = mock(OrderProduct.class);
+        OrderItem orderItemCommand = mock(OrderItem.class);
 
-        when(command.getOrderProducts()).thenReturn(List.of(orderProductCommand));
+        when(command.getOrderItems()).thenReturn(List.of(orderItemCommand));
         when(productRepository.findById(anyLong())).thenThrow(new IllegalArgumentException());
 
         // when, then
@@ -50,9 +51,9 @@ class ProductServiceUnitTest {
 
         // given
         OrderProducts command = mock(OrderProducts.class);
-        OrderProduct orderProduct = mock(OrderProduct.class);
+        OrderItem orderItem = mock(OrderItem.class);
 
-        when(command.getOrderProducts()).thenReturn(List.of(orderProduct, orderProduct));
+        when(command.getOrderItems()).thenReturn(List.of(orderItem, orderItem));
         when(productRepository.findById(anyLong())).thenReturn(
             Product.create("productA", 1_000L, 100, ProductStatus.STOP_SELLING));
 
@@ -66,17 +67,17 @@ class ProductServiceUnitTest {
     void getOrderProducts() {
         // given
         OrderProducts command = mock(OrderProducts.class);
-        OrderProduct orderProduct = mock(OrderProduct.class);
+        OrderItem orderItem = mock(OrderItem.class);
 
-        when(command.getOrderProducts()).thenReturn(List.of(orderProduct, orderProduct));
+        when(command.getOrderItems()).thenReturn(List.of(orderItem, orderItem));
         when(productRepository.findById(anyLong())).thenReturn(
             Product.create("productA", 1_000L, 100, ProductStatus.SELLING));
 
         // when
-        ProductInfo.OrderProducts orderProducts = productService.getOrderProducts(command);
+        OrderItems orderItems = productService.getOrderProducts(command);
 
         // then
-        assertThat(orderProducts.getOrderProducts()).hasSize(2)
+        assertThat(orderItems.getOrderItems()).hasSize(2)
             .extracting("productName", "productPrice", "quantity")
             .containsExactly(
                 tuple("productA", 1_000L, 100),

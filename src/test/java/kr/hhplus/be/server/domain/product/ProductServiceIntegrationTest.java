@@ -5,7 +5,9 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.tuple;
 
 import java.util.List;
+import kr.hhplus.be.server.domain.product.ProductCommand.OrderItem;
 import kr.hhplus.be.server.domain.product.ProductCommand.OrderProducts;
+import kr.hhplus.be.server.domain.product.ProductInfo.OrderItems;
 import kr.hhplus.be.server.domain.product.ProductInfo.Products;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -37,13 +39,13 @@ class ProductServiceIntegrationTest {
             ProductStatus.HOLD);
         ProductInfo.Product savedHoldProduct = productService.saveProduct(holdProduct);
 
-        List<ProductCommand.OrderProduct> orderProducts = List.of(
-            ProductCommand.OrderProduct.of(savedSellProduct.getProductId(), 1),
-            ProductCommand.OrderProduct.of(savedStopProduct.getProductId(), 1),
-            ProductCommand.OrderProduct.of(savedHoldProduct.getProductId(), 1)
+        List<OrderItem> orderItems = List.of(
+            OrderItem.of(savedSellProduct.getProductId(), 1),
+            OrderItem.of(savedStopProduct.getProductId(), 1),
+            OrderItem.of(savedHoldProduct.getProductId(), 1)
         );
 
-        OrderProducts command = OrderProducts.of(orderProducts);
+        OrderProducts command = OrderProducts.of(orderItems);
 
         // when, then
         assertThatThrownBy(() -> productService.getOrderProducts(command))
@@ -65,19 +67,19 @@ class ProductServiceIntegrationTest {
             ProductStatus.SELLING);
         ProductInfo.Product savedProductC = productService.saveProduct(productC);
 
-        List<ProductCommand.OrderProduct> orderProducts = List.of(
-            ProductCommand.OrderProduct.of(savedProductA.getProductId(), 1),
-            ProductCommand.OrderProduct.of(savedProductB.getProductId(), 1),
-            ProductCommand.OrderProduct.of(savedProductC.getProductId(), 1)
+        List<OrderItem> orderItems = List.of(
+            OrderItem.of(savedProductA.getProductId(), 1),
+            OrderItem.of(savedProductB.getProductId(), 1),
+            OrderItem.of(savedProductC.getProductId(), 1)
         );
 
-        OrderProducts command = OrderProducts.of(orderProducts);
+        OrderProducts command = OrderProducts.of(orderItems);
 
         // when
-        ProductInfo.OrderProducts findOrderProducts = productService.getOrderProducts(command);
+        OrderItems findOrderItems = productService.getOrderProducts(command);
 
         // then
-        assertThat(findOrderProducts.getOrderProducts()).hasSize(3);
+        assertThat(findOrderItems.getOrderItems()).hasSize(3);
     }
 
     @Test

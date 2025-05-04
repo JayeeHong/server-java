@@ -2,7 +2,6 @@ package kr.hhplus.be.server.domain.user;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import kr.hhplus.be.server.domain.coupon.Coupon;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
