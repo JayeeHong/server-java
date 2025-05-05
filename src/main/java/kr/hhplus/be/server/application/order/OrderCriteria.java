@@ -75,5 +75,9 @@ public class OrderCriteria {
         public static OrderItem of(Long productId, int quantity) {
             return new OrderItem(productId, quantity);
         }
+
+        public OrderCriteria.OrderItem toCriteria() {
+            return OrderCriteria.OrderItem.of(productId, quantity);
+        }
     }
 }
