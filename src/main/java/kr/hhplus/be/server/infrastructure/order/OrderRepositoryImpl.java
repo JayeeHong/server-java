@@ -14,6 +14,7 @@ import org.springframework.stereotype.Component;
 public class OrderRepositoryImpl implements OrderRepository {
 
     private final OrderJpaRepository orderJpaRepository;
+    private final OrderItemJpaRepository orderItemJpaRepository;
 
     @Override
     public Order save(Order order) {
@@ -28,7 +29,7 @@ public class OrderRepositoryImpl implements OrderRepository {
 
     @Override
     public List<OrderItem> findOrderIdsIn(List<Long> orderIds) {
-        return List.of();
+        return orderItemJpaRepository.findByOrderIdIn(orderIds);
     }
 
     @Override

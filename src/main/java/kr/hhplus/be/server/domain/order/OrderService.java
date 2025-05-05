@@ -30,9 +30,11 @@ public class OrderService {
             command.getDiscountPrice(), orderItems);
         orderRepository.save(order);
 
-        return OrderInfo.Order.of(order.getId(), order.getTotalPrice(), order.getDiscountPrice());
+        return OrderInfo.Order.of(order.getId(), order.getTotalPrice(), order.getDiscountPrice(),
+            order.getOrderStatus());
     }
 
+    @Transactional
     public void paidOrder(Long orderId) {
         Order order = orderRepository.findById(orderId);
         order.paid(LocalDateTime.now());
@@ -47,4 +49,10 @@ public class OrderService {
         return OrderInfo.PaidItems.of(paidItems);
     }
 
+    public OrderInfo.Order getOrder(Long orderId) {
+        Order order = orderRepository.findById(orderId);
+
+        return OrderInfo.Order.of(order.getId(), order.getTotalPrice(), order.getDiscountPrice(),
+            order.getOrderStatus());
+    }
 }
