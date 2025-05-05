@@ -68,7 +68,9 @@ class ProductServiceUnitTest {
         OrderItems command = mock(OrderItems.class);
         OrderItem orderItem = mock(OrderItem.class);
 
+        when(orderItem.getQuantity()).thenReturn(100);
         when(command.getOrderItems()).thenReturn(List.of(orderItem, orderItem));
+
         when(productRepository.findById(anyLong())).thenReturn(
             Product.create("productA", 1_000L, 100, ProductStatus.SELLING));
 

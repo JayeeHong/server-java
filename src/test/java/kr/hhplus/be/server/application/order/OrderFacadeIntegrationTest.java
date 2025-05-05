@@ -72,7 +72,6 @@ class OrderFacadeIntegrationTest {
         user = userService.createUser(Create.of("userA"));
 
         balance = BalanceCommand.Save.of(user.getUserId(), 1_000_000L);
-        System.out.println(user.getUserId());
         balanceService.saveBalance(balance);
 
         ProductCommand.Create command = ProductCommand.Create.of("productA", 10_000L, 100, ProductStatus.SELLING);
