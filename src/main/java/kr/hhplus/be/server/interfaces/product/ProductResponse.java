@@ -1,50 +1,51 @@
 package kr.hhplus.be.server.interfaces.product;
 
-import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-
 import java.util.List;
+import kr.hhplus.be.server.application.product.ProductResult;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class ProductResponse {
 
     @Getter
-    @RequiredArgsConstructor
-    @Schema(description = "상품 응답 DTO")
-    public static class ProductDto {
+    @NoArgsConstructor
+    public static class Products {
 
-        @Schema(description = "상품 ID", example = "1")
-        private final Long id;
+        private List<Product> products;
 
-        @Schema(description = "상품 이름", example = "고급 노트북")
-        private final String name;
+        private Products(List<Product> products) {
+            this.products = products;
+        }
 
-        @Schema(description = "가격", example = "1500000")
-        private final long price;
-
-        @Schema(description = "남은 재고 수량", example = "8")
-        private final int stock;
+        public static Products of(ProductResult.Products products) {
+            return new Products(products.getProducts().stream()
+                .map(Product::of)
+                .toList());
+        }
     }
 
-    @Schema(description = "인기 상품 정보")
-    public record HotProduct(
-        @Schema(description = "상품 ID", example = "1")
-        Long productId,
+    @Getter
+    @NoArgsConstructor
+    public static class Product {
 
-        @Schema(description = "상품명", example = "콜드브루")
-        String productName,
+        private Long id;
+        private String name;
+        private long price;
+        private int quantity;
 
-        @Schema(description = "총 판매 수량", example = "123")
-        int totalSold
-    ) {}
+        private Product(Long id, String name, long price, int quantity) {
+            this.id = id;
+            this.name = name;
+            this.price = price;
+            this.quantity = quantity;
+        }
 
-    public static List<ProductDto> translate(List<kr.hhplus.be.server.domain.product.Product> products) {
-        return products.stream()
-            .map(p -> new ProductDto(p.getId(), p.getName(), p.getPrice(), p.getQuantity()))
-            .toList();
+        public static Product of(ProductResult.Product product) {
+            return new Product(product.getProductId(), product.getProductName(),
+                product.getProductPrice(), product.getQuantity());
+        }
     }
 
-    public static ProductDto from(kr.hhplus.be.server.domain.product.Product product) {
-        return new ProductDto(product.getId(), product.getName(), product.getPrice(), product.getQuantity());
-    }
 }
