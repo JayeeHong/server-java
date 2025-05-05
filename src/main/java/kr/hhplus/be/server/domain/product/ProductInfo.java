@@ -62,15 +62,17 @@ public class ProductInfo {
         private final Long productId;
         private final String productName;
         private final long productPrice;
+        private final int quantity;
 
-        private Product(Long productId, String productName, long productPrice) {
+        private Product(Long productId, String productName, long productPrice, int quantity) {
             this.productId = productId;
             this.productName = productName;
             this.productPrice = productPrice;
+            this.quantity = quantity;
         }
 
-        public static Product of(Long productId, String productName, long productPrice) {
-            return new Product(productId, productName, productPrice);
+        public static Product of(Long productId, String productName, long productPrice, int quantity) {
+            return new Product(productId, productName, productPrice, quantity);
         }
     }
 

@@ -9,16 +9,16 @@ import lombok.NoArgsConstructor;
 public class ProductCommand {
 
     @Getter
-    public static class OrderProducts {
+    public static class OrderItems {
 
         private final List<OrderItem> orderItems;
 
-        private OrderProducts(List<OrderItem> orderItems) {
+        private OrderItems(List<OrderItem> orderItems) {
             this.orderItems = orderItems;
         }
 
-        public static OrderProducts of(List<OrderItem> orderItems) {
-            return new OrderProducts(orderItems);
+        public static OrderItems of(List<OrderItem> orderItems) {
+            return new OrderItems(orderItems);
         }
     }
 
@@ -65,14 +65,14 @@ public class ProductCommand {
             return new Product(productId);
         }
 
-        public static ProductInfo.OrderItem toOrderProductInfo(kr.hhplus.be.server.domain.product.Product product) {
+        public static ProductInfo.OrderItem toOrderProductInfo(kr.hhplus.be.server.domain.product.Product product, int quantity) {
             return ProductInfo.OrderItem.of(
-                product.getId(), product.getName(), product.getPrice(), product.getQuantity()
+                product.getId(), product.getName(), product.getPrice(), quantity
             );
         }
 
         public static ProductInfo.Product toProductInfo(kr.hhplus.be.server.domain.product.Product product) {
-            return ProductInfo.Product.of(product.getId(), product.getName(), product.getPrice());
+            return ProductInfo.Product.of(product.getId(), product.getName(), product.getPrice(), product.getQuantity());
         }
     }
 

@@ -10,8 +10,7 @@ import static org.mockito.Mockito.when;
 
 import java.util.List;
 import kr.hhplus.be.server.domain.product.ProductCommand.OrderItem;
-import kr.hhplus.be.server.domain.product.ProductCommand.OrderProducts;
-import kr.hhplus.be.server.domain.product.ProductInfo.OrderItems;
+import kr.hhplus.be.server.domain.product.ProductCommand.OrderItems;
 import kr.hhplus.be.server.domain.product.ProductInfo.Products;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -34,7 +33,7 @@ class ProductServiceUnitTest {
     void getOrderProductInvalidId() {
 
         // given
-        OrderProducts command = mock(OrderProducts.class);
+        OrderItems command = mock(OrderItems.class);
         OrderItem orderItemCommand = mock(OrderItem.class);
 
         when(command.getOrderItems()).thenReturn(List.of(orderItemCommand));
@@ -50,7 +49,7 @@ class ProductServiceUnitTest {
     void getSellingStatusOrderProduct() {
 
         // given
-        OrderProducts command = mock(OrderProducts.class);
+        OrderItems command = mock(OrderItems.class);
         OrderItem orderItem = mock(OrderItem.class);
 
         when(command.getOrderItems()).thenReturn(List.of(orderItem, orderItem));
@@ -66,7 +65,7 @@ class ProductServiceUnitTest {
     @DisplayName("주문 상품 목록을 조회한다")
     void getOrderProducts() {
         // given
-        OrderProducts command = mock(OrderProducts.class);
+        OrderItems command = mock(OrderItems.class);
         OrderItem orderItem = mock(OrderItem.class);
 
         when(command.getOrderItems()).thenReturn(List.of(orderItem, orderItem));
@@ -74,7 +73,7 @@ class ProductServiceUnitTest {
             Product.create("productA", 1_000L, 100, ProductStatus.SELLING));
 
         // when
-        OrderItems orderItems = productService.getOrderProducts(command);
+        ProductInfo.OrderItems orderItems = productService.getOrderProducts(command);
 
         // then
         assertThat(orderItems.getOrderItems()).hasSize(2)

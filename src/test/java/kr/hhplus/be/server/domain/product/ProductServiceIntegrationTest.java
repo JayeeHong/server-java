@@ -6,8 +6,7 @@ import static org.assertj.core.api.Assertions.tuple;
 
 import java.util.List;
 import kr.hhplus.be.server.domain.product.ProductCommand.OrderItem;
-import kr.hhplus.be.server.domain.product.ProductCommand.OrderProducts;
-import kr.hhplus.be.server.domain.product.ProductInfo.OrderItems;
+import kr.hhplus.be.server.domain.product.ProductCommand.OrderItems;
 import kr.hhplus.be.server.domain.product.ProductInfo.Products;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -45,7 +44,7 @@ class ProductServiceIntegrationTest {
             OrderItem.of(savedHoldProduct.getProductId(), 1)
         );
 
-        OrderProducts command = OrderProducts.of(orderItems);
+        OrderItems command = OrderItems.of(orderItems);
 
         // when, then
         assertThatThrownBy(() -> productService.getOrderProducts(command))
@@ -73,10 +72,10 @@ class ProductServiceIntegrationTest {
             OrderItem.of(savedProductC.getProductId(), 1)
         );
 
-        OrderProducts command = OrderProducts.of(orderItems);
+        OrderItems command = OrderItems.of(orderItems);
 
         // when
-        OrderItems findOrderItems = productService.getOrderProducts(command);
+        ProductInfo.OrderItems findOrderItems = productService.getOrderProducts(command);
 
         // then
         assertThat(findOrderItems.getOrderItems()).hasSize(3);

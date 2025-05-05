@@ -29,10 +29,10 @@ class UserCouponServiceIntegrationTest {
 
         // given
         UserCouponCommand.Publish command = UserCouponCommand.Publish.of(1L, 100L);
-        userCouponService.createCoupon(command);
+        userCouponService.createUserCoupon(command);
 
         // when
-        assertThatThrownBy(() -> userCouponService.createCoupon(command))
+        assertThatThrownBy(() -> userCouponService.createUserCoupon(command))
             .isInstanceOf(IllegalArgumentException.class);
     }
 
@@ -44,7 +44,7 @@ class UserCouponServiceIntegrationTest {
         Publish command = Publish.of(1L, 100L);
 
         // when
-        Coupon coupon = userCouponService.createCoupon(command);
+        Coupon coupon = userCouponService.createUserCoupon(command);
 
         // then
         assertThat(coupon.getUserCouponId()).isNotNull();
@@ -67,7 +67,7 @@ class UserCouponServiceIntegrationTest {
 
         // given
         Publish command = Publish.of(1L, 100L);
-        Coupon coupon = userCouponService.createCoupon(command);
+        Coupon coupon = userCouponService.createUserCoupon(command);
 
         userCouponService.useUserCoupon(coupon.getUserCouponId());
 
@@ -84,7 +84,7 @@ class UserCouponServiceIntegrationTest {
 
         // given
         Publish publishCommand = Publish.of(1L, 100L);
-        Coupon coupon = userCouponService.createCoupon(publishCommand);
+        Coupon coupon = userCouponService.createUserCoupon(publishCommand);
 
         UsableCoupon command = UsableCoupon.of(publishCommand.getUserId(),
             publishCommand.getCouponId());
@@ -111,7 +111,7 @@ class UserCouponServiceIntegrationTest {
 
         // given
         Publish publishCommand = Publish.of(1L, 100L);
-        Coupon coupon = userCouponService.createCoupon(publishCommand);
+        Coupon coupon = userCouponService.createUserCoupon(publishCommand);
 
         userCouponService.useUserCoupon(coupon.getUserCouponId());
 
@@ -129,7 +129,7 @@ class UserCouponServiceIntegrationTest {
 
         // given
         Publish publishCommand = Publish.of(1L, 100L);
-        Coupon coupon = userCouponService.createCoupon(publishCommand);
+        Coupon coupon = userCouponService.createUserCoupon(publishCommand);
 
         // when
         userCouponService.useUserCoupon(coupon.getUserCouponId());
@@ -146,15 +146,15 @@ class UserCouponServiceIntegrationTest {
         // given
         UserCoupon userCoupon = UserCoupon.create(1L, 100L);
         Publish publishCommand = Publish.of(userCoupon.getUserId(), userCoupon.getCouponId());
-        Coupon coupon = userCouponService.createCoupon(publishCommand);
+        Coupon coupon = userCouponService.createUserCoupon(publishCommand);
 
         UserCoupon anotherUserCoupon = UserCoupon.create(2L, 100L);
         Publish anotherPublishCommand = Publish.of(anotherUserCoupon.getUserId(), anotherUserCoupon.getCouponId());
-        userCouponService.createCoupon(anotherPublishCommand);
+        userCouponService.createUserCoupon(anotherPublishCommand);
 
         UserCoupon usedUserCoupon = UserCoupon.create(1L, 200L);
         Publish usedPublishCommand = Publish.of(usedUserCoupon.getUserId(), usedUserCoupon.getCouponId());
-        Coupon usedCoupon = userCouponService.createCoupon(usedPublishCommand);
+        Coupon usedCoupon = userCouponService.createUserCoupon(usedPublishCommand);
         userCouponService.useUserCoupon(usedCoupon.getUserCouponId());
 
         // when

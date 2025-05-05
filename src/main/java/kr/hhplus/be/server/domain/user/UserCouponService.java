@@ -11,7 +11,7 @@ public class UserCouponService {
     private final UserCouponRepository userCouponRepository;
 
     // 사용자 쿠폰을 발행한다
-    public UserCouponInfo.Coupon createCoupon(UserCouponCommand.Publish command) {
+    public UserCouponInfo.Coupon createUserCoupon(UserCouponCommand.Publish command) {
         UserCoupon findCoupon = userCouponRepository.findByUserIdAndCouponId(command.getUserId(),
             command.getCouponId());
 
@@ -59,6 +59,13 @@ public class UserCouponService {
     // 사용자 쿠폰 ID로 쿠폰을 조회한다
     public UserCouponInfo.Coupon getUserCouponById(Long userCouponId) {
         UserCoupon userCoupon = userCouponRepository.findById(userCouponId);
+
+        return UserCouponInfo.Coupon.toUserCouponInfo(userCoupon);
+    }
+
+    // 사용자 ID와 쿠폰 ID로 쿠폰을 조회한다
+    public UserCouponInfo.Coupon getUserCoupon(Long userId, Long couponId) {
+        UserCoupon userCoupon = userCouponRepository.findByUserIdAndCouponId(userId, couponId);
 
         return UserCouponInfo.Coupon.toUserCouponInfo(userCoupon);
     }

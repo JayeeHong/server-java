@@ -37,7 +37,7 @@ class UserCouponServiceUnitTest {
         Publish command = mock(Publish.class);
 
         // when
-        userCouponService.createCoupon(command);
+        userCouponService.createUserCoupon(command);
 
         // then
         verify(userCouponRepository, times(1)).save(any(UserCoupon.class));
@@ -55,7 +55,7 @@ class UserCouponServiceUnitTest {
             .thenReturn(userCoupon);
 
         // when, then
-        assertThatThrownBy(() -> userCouponService.createCoupon(command))
+        assertThatThrownBy(() -> userCouponService.createUserCoupon(command))
             .isInstanceOf(IllegalArgumentException.class);
     }
 
