@@ -44,3 +44,14 @@ springdoc:
     path: /swagger-ui.html
     operationsSorter: method
     tagsSorter: alpha
+
+---
+spring:
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      # password: yourpassword  (비밀번호 설정했다면 추가)
+
+redisson:
+  address: redis://localhost:6379 # 비밀번호 설정했다면 redis://:password@host:port
