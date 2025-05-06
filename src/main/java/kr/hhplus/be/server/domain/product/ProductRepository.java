@@ -12,4 +12,6 @@ public interface ProductRepository {
 
     List<Product> findByStatusIn(List<ProductStatus> statuses);
 
+    Product findByIdWithPessimisticLock(Long productId);
+
 }

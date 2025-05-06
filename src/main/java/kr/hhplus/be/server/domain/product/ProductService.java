@@ -77,9 +77,11 @@ public class ProductService {
         command.getOrderItems().forEach(this::decreaseStock);
     }
 
+    @Transactional
     public void decreaseStock(ProductCommand.OrderItem command) {
-        Product product = productRepository.findById(command.getProductId());
+        Product product = productRepository.findByIdWithPessimisticLock(command.getProductId());
         product.decreaseStock(command.getQuantity());
+        productRepository.save(product);
     }
 
     public ProductInfo.Product getProduct(Long productId) {

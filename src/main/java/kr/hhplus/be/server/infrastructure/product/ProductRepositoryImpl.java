@@ -28,4 +28,9 @@ public class ProductRepositoryImpl implements ProductRepository {
     public List<Product> findByStatusIn(List<ProductStatus> statuses) {
         return productJpaRepository.findByStatusIn(statuses);
     }
+
+    @Override
+    public Product findByIdWithPessimisticLock(Long productId) {
+        return productJpaRepository.findByIdWithPessimisticLock(productId);
+    }
 }
