@@ -20,6 +20,12 @@ public class BalanceFacade {
         balanceService.chargeBalance(criteria.toCommand());
     }
 
+    @Transactional
+    public void useBalance(BalanceCriteria.Use criteria) {
+        userService.getUser(criteria.getUserId());
+        balanceService.useBalance(criteria.toCommand());
+    }
+
     @Transactional(readOnly = true)
     public BalanceResult.Balance getBalance(Long userId) {
         userService.getUser(userId);

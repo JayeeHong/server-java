@@ -7,6 +7,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Index;
 import jakarta.persistence.Table;
+import jakarta.persistence.Version;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -29,6 +30,9 @@ public class Balance {
     private Long userId;
 
     private long amount;
+
+    @Version
+    private Integer version;
 
     private Balance(Long id, Long userId, long amount) {
         this.id = id;
