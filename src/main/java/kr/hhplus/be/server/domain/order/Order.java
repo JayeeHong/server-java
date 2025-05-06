@@ -8,6 +8,7 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Index;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import java.time.LocalDateTime;
@@ -19,7 +20,9 @@ import lombok.NoArgsConstructor;
 
 @Entity
 @Getter
-@Table(name = "orders")
+@Table(name = "orders", indexes = {
+    @Index(name = "orders_idx_order_status_paid_at", columnList = "order_status, paid_at")
+})
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Order {
 
