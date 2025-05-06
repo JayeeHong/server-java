@@ -27,7 +27,7 @@ public class CouponServiceUnitTest {
     void cannotIssueWithInvalidId() {
 
         // given
-        when(couponRepository.findById(anyLong()))
+        when(couponRepository.findByIdWithPessimisticLock(anyLong()))
             .thenThrow(new IllegalArgumentException("쿠폰을 발급할 수 없습니다."));
 
         // when, then
@@ -43,7 +43,7 @@ public class CouponServiceUnitTest {
         Coupon coupon = Coupon.create("couponA", 1000, 100, LocalDateTime.of(9999, 12, 31, 23, 59));
         coupon.expire();
 
-        when(couponRepository.findById(anyLong())).thenReturn(coupon);
+        when(couponRepository.findByIdWithPessimisticLock(anyLong())).thenReturn(coupon);
 
         // when, then
         assertThatThrownBy(() -> couponService.issueCoupon(anyLong()))
@@ -58,7 +58,7 @@ public class CouponServiceUnitTest {
         Coupon coupon = Coupon.of(1L, "couponA", 1000, 100, LocalDateTime.of(2025, 5, 1, 12, 00));
         coupon.publish();
 
-        when(couponRepository.findById(anyLong())).thenReturn(coupon);
+        when(couponRepository.findByIdWithPessimisticLock(anyLong())).thenReturn(coupon);
 
         // when, then
         assertThatThrownBy(() -> couponService.issueCoupon(anyLong()))
@@ -73,7 +73,7 @@ public class CouponServiceUnitTest {
         Coupon coupon = Coupon.of(1L, "couponA", 1000, 0, LocalDateTime.of(9999, 12, 31, 23, 59));
         coupon.publish();
 
-        when(couponRepository.findById(anyLong())).thenReturn(coupon);
+        when(couponRepository.findByIdWithPessimisticLock(anyLong())).thenReturn(coupon);
 
         // when, then
         assertThatThrownBy(() -> couponService.issueCoupon(anyLong()))
@@ -88,7 +88,7 @@ public class CouponServiceUnitTest {
         Coupon coupon = Coupon.create("couponA", 1000, 100, LocalDateTime.of(9999, 12, 31, 23, 59));
         coupon.publish();
 
-        when(couponRepository.findById(anyLong())).thenReturn(coupon);
+        when(couponRepository.findByIdWithPessimisticLock(anyLong())).thenReturn(coupon);
 
         // when
         couponService.issueCoupon(anyLong());

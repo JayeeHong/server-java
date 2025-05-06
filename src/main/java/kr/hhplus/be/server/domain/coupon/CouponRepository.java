@@ -9,4 +9,6 @@ public interface CouponRepository {
 
     Coupon findById(Long couponId);
 
+    Coupon findByIdWithPessimisticLock(Long couponId);
+
 }

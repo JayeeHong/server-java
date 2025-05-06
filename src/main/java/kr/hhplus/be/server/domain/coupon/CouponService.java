@@ -13,7 +13,7 @@ public class CouponService {
     // 쿠폰 발급
     @Transactional
     public void issueCoupon(Long couponId) {
-        Coupon coupon = couponRepository.findById(couponId);
+        Coupon coupon = couponRepository.findByIdWithPessimisticLock(couponId);
         coupon.issue();
 
         couponRepository.save(coupon);
@@ -22,7 +22,7 @@ public class CouponService {
     // 쿠폰 발행 상태로 업데이트
     @Transactional
     public void publishCoupon(Long couponId) {
-        Coupon coupon = couponRepository.findById(couponId);
+        Coupon coupon = couponRepository.findByIdWithPessimisticLock(couponId);
         coupon.publish();
 
         couponRepository.save(coupon);
@@ -31,7 +31,7 @@ public class CouponService {
     // 쿠폰 만료 상태로 업데이트
     @Transactional
     public void expireCoupon(Long couponId) {
-        Coupon coupon = couponRepository.findById(couponId);
+        Coupon coupon = couponRepository.findByIdWithPessimisticLock(couponId);
         coupon.expire();
 
         couponRepository.save(coupon);
