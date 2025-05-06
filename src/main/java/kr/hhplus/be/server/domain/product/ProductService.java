@@ -2,6 +2,7 @@ package kr.hhplus.be.server.domain.product;
 
 import java.util.ArrayList;
 import java.util.List;
+import kr.hhplus.be.server.config.redis.DistributedLock;
 import kr.hhplus.be.server.domain.product.ProductCommand.OrderItem;
 import kr.hhplus.be.server.domain.product.ProductCommand.OrderItems;
 import lombok.RequiredArgsConstructor;
@@ -80,6 +81,13 @@ public class ProductService {
     @Transactional
     public void decreaseStock(ProductCommand.OrderItem command) {
         Product product = productRepository.findByIdWithPessimisticLock(command.getProductId());
+        product.decreaseStock(command.getQuantity());
+        productRepository.save(product);
+    }
+
+    @DistributedLock(key = "#command.productId")
+    public void decreaseStockWithRedisson(ProductCommand.OrderItem command) {
+        Product product = productRepository.findById(command.getProductId());
         product.decreaseStock(command.getQuantity());
         productRepository.save(product);
     }
