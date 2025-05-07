@@ -1,5 +1,11 @@
 package kr.hhplus.be.server.application.product;
 
+import kr.hhplus.be.server.config.redis.DistributedLock;
+import kr.hhplus.be.server.config.redis.RedissonLockManager;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.retry.annotation.Backoff;
 
@@ -22,9 +28,11 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
+@Slf4j
 public class ProductService {
 
     private final ProductRepository productRepository;
+    private final RedissonLockManager lockService;
 
     /**
      * 전체 상품 목록을 조회한다.
@@ -57,13 +65,45 @@ public class ProductService {
         return updatedProducts;
     }
 
+    @Transactional(readOnly = true)
+    public Product getProductInfo(Long productId) {
+        return productRepository.findById(productId);
+    }
+
+    @Cacheable(cacheNames = "product", key = "#productId")
+    @Transactional(readOnly = true)
+    public Product getProductInfoCache(Long productId) {
+        return productRepository.findById(productId);
+    }
+
+    @Transactional
+    @DistributedLock(key = "'product:' + #productId")
+    public Product decreaseStockWithRedisson(Long productId, int quantity) {
+
+        Product product = productRepository.findById(productId);
+        product.decreaseStock(quantity);
+
+        return product;
+    }
+
+    @CachePut(cacheNames = "product", key = "#productId")
+    @Transactional
+    @DistributedLock(key = "'product:' + #productId")
+    public Product decreaseStockWithRedissonCache(Long productId, int quantity) {
+
+        Product product = productRepository.findById(productId);
+        product.decreaseStock(quantity);
+
+        return product;
+    }
+
     @Retryable(
         value = {OptimisticLockException.class, ObjectOptimisticLockingFailureException.class},
         maxAttempts = 3,  // 최대 3번 재시도
         backoff = @Backoff(delay = 100) // 100ms 쉬고 재시도
     )
     @Transactional
-    public void decreaseStock(Long productId, int quantity) {
+    public void decreaseStockWithOptimisticLock(Long productId, int quantity) {
         Product product = productRepository.findById(productId);
 
         product.decreaseStock(quantity);
@@ -90,6 +130,19 @@ public class ProductService {
             throw new IllegalArgumentException("존재하지 않는 상품입니다.");
         }
         return product.getPrice();
+    }
+
+    @Transactional
+    public Long deleteProduct(Long productId) {
+        productRepository.deleteById(productId);
+        return productId;
+    }
+
+    @CacheEvict(cacheNames = "product", key = "#productId")
+    @Transactional
+    public Long deleteProductCache(Long productId) {
+        productRepository.deleteById(productId);
+        return productId;
     }
 
 }
