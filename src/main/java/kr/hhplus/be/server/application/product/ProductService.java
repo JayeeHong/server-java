@@ -65,16 +65,31 @@ public class ProductService {
         return updatedProducts;
     }
 
-    @Cacheable(cacheNames = "product", key = "#productId")
     @Transactional(readOnly = true)
     public Product getProductInfo(Long productId) {
         return productRepository.findById(productId);
     }
 
-    @CachePut(cacheNames = "product", key = "#productId")
+    @Cacheable(cacheNames = "product", key = "#productId")
+    @Transactional(readOnly = true)
+    public Product getProductInfoCache(Long productId) {
+        return productRepository.findById(productId);
+    }
+
     @Transactional
     @DistributedLock(key = "'product:' + #productId")
     public Product decreaseStockWithRedisson(Long productId, int quantity) {
+
+        Product product = productRepository.findById(productId);
+        product.decreaseStock(quantity);
+
+        return product;
+    }
+
+    @CachePut(cacheNames = "product", key = "#productId")
+    @Transactional
+    @DistributedLock(key = "'product:' + #productId")
+    public Product decreaseStockWithRedissonCache(Long productId, int quantity) {
 
         Product product = productRepository.findById(productId);
         product.decreaseStock(quantity);
@@ -117,9 +132,15 @@ public class ProductService {
         return product.getPrice();
     }
 
-    @CacheEvict(cacheNames = "product", key = "#productId")
     @Transactional
     public Long deleteProduct(Long productId) {
+        productRepository.deleteById(productId);
+        return productId;
+    }
+
+    @CacheEvict(cacheNames = "product", key = "#productId")
+    @Transactional
+    public Long deleteProductCache(Long productId) {
         productRepository.deleteById(productId);
         return productId;
     }
