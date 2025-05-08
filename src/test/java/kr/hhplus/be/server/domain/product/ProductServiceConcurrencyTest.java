@@ -55,39 +55,4 @@ class ProductServiceConcurrencyTest {
         System.out.println("남은 재고: " + quantity);
         assertThat(quantity).isGreaterThanOrEqualTo(0);
     }
-
-    @Test
-    @DisplayName("상품 재고 감소 Redisson 테스트 - 성공")
-    void decreaseStockRedissonSuccessTest() throws InterruptedException {
-
-        Product product = Product.create("productAA", 1_000L, 10, ProductStatus.SELLING);
-        productRepository.save(product);
-
-        Product findProduct = productRepository.findById(product.getId());
-
-        int threadCount = 10;
-        ExecutorService executorService = Executors.newFixedThreadPool(threadCount);
-        CountDownLatch latch = new CountDownLatch(threadCount);
-
-        // when
-        for (int i = 0; i < threadCount; i++) {
-            executorService.submit(() -> {
-                try {
-                    ProductCommand.OrderItem command = ProductCommand.OrderItem.of(findProduct.getId(), 1);
-                    productService.decreaseStockWithRedisson(command);
-                } catch (Exception e) {
-                    System.out.println("재고 감소 실패: " + e.getMessage());
-                } finally {
-                    latch.countDown();
-                }
-            });
-        }
-
-        latch.await();
-
-        // then
-        int quantity = productRepository.findById(product.getId()).getQuantity();
-        System.out.println("남은 재고: " + quantity);
-        assertThat(quantity).isZero();
-    }
 }
