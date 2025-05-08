@@ -76,13 +76,13 @@ class UserCouponFacadeUnitTest {
 
     @Test
     @DisplayName("사용자 쿠폰을 발급한다")
-    void publishUserCoupon() {
+    void issueUserCoupon() {
 
         // given
         UserCouponCriteria.Publish criteria = mock(UserCouponCriteria.Publish.class);
 
         // when
-        userCouponFacade.publishUserCoupon(criteria);
+        userCouponFacade.issueUserCoupon(criteria);
 
         // then
         InOrder inOrder = inOrder(userService, couponService, userCouponService);

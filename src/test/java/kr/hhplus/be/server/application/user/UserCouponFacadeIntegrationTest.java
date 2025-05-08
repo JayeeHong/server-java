@@ -79,13 +79,13 @@ class UserCouponFacadeIntegrationTest {
 
     @Test
     @DisplayName("사용자에게 쿠폰을 발급한다")
-    void publishUserCoupon() {
+    void issueUserCoupon() {
 
         // given
         UserCouponCriteria.Publish criteria = UserCouponCriteria.Publish.of(user.getUserId(), coupon.getCouponId());
 
         // when
-        userCouponFacade.publishUserCoupon(criteria);
+        userCouponFacade.issueUserCoupon(criteria);
 
         // then
         UserCouponInfo.Coupon userCoupon = userCouponService.getUserCoupon(user.getUserId(), coupon.getCouponId());

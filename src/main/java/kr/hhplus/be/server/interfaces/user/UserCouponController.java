@@ -26,6 +26,6 @@ public class UserCouponController implements UserCouponApi {
     @Override
     @PostMapping("/{id}/coupons/publish")
     public void chargeBalance(Long userId, Publish request) {
-        userCouponFacade.publishUserCoupon(request.toCriteria(userId));
+        userCouponFacade.issueUserCoupon(request.toCriteria(userId));
     }
 }
