@@ -6,6 +6,8 @@ import kr.hhplus.be.server.domain.coupon.CouponService;
 import kr.hhplus.be.server.domain.user.UserCouponInfo;
 import kr.hhplus.be.server.domain.user.UserCouponService;
 import kr.hhplus.be.server.domain.user.UserService;
+import kr.hhplus.be.server.support.lock.DistributedLock;
+import kr.hhplus.be.server.support.lock.LockType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,10 +32,11 @@ public class UserCouponFacade {
     }
 
     @Transactional
-    public void publishUserCoupon(UserCouponCriteria.Publish criteria) {
+    @DistributedLock(type = LockType.COUPON, key = "#criteria.couponId")
+    public void issueUserCoupon(UserCouponCriteria.Publish criteria) {
         userService.getUser(criteria.getUserId());
 
-        couponService.publishCoupon(criteria.getCouponId());
+        couponService.issueCoupon(criteria.getCouponId());
         userCouponService.createUserCoupon(criteria.toCommand());
     }
 
