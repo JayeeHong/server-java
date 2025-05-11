@@ -87,7 +87,7 @@ class UserCouponFacadeUnitTest {
         // then
         InOrder inOrder = inOrder(userService, couponService, userCouponService);
         inOrder.verify(userService, times(1)).getUser(criteria.getUserId());
-        inOrder.verify(couponService, times(1)).publishCoupon(criteria.getCouponId());
+        inOrder.verify(couponService, times(1)).issueCoupon(criteria.getCouponId());
         inOrder.verify(userCouponService, times(1)).createUserCoupon(criteria.toCommand());
     }
 }
