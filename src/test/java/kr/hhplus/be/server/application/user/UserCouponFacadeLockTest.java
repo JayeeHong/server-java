@@ -3,7 +3,11 @@ package kr.hhplus.be.server.application.user;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 import kr.hhplus.be.server.domain.coupon.Coupon;
 import kr.hhplus.be.server.domain.coupon.CouponRepository;
@@ -46,25 +50,39 @@ public class UserCouponFacadeLockTest extends ConcurrencyTestSupport {
         AtomicInteger successCount = new AtomicInteger();
         AtomicInteger failCount = new AtomicInteger();
 
-        // when
-        executeConcurrency(List.of(
-            () -> {
-                try {
-                    userCouponFacade.issueUserCoupon(criteria1);
-                    successCount.incrementAndGet();
-                } catch (Exception e) {
-                    failCount.incrementAndGet();
-                }
-            },
-            () -> {
-                try {
-                    userCouponFacade.issueUserCoupon(criteria2);
-                    successCount.incrementAndGet();
-                } catch (Exception e) {
-                    failCount.incrementAndGet();
-                }
+        List<Runnable> runnables = new ArrayList<>();
+        runnables.add(() -> {
+            try {
+                userCouponFacade.issueUserCoupon(criteria1);
+                successCount.incrementAndGet();
+            } catch (Exception e) {
+                failCount.incrementAndGet();
             }
-        ));
+        });
+
+        runnables.add(() -> {
+            try {
+                userCouponFacade.issueUserCoupon(criteria2);
+                successCount.incrementAndGet();
+            } catch (Exception e) {
+                failCount.incrementAndGet();
+            }
+        });
+
+        ExecutorService executorService = Executors.newFixedThreadPool(runnables.size());
+
+        List<CompletableFuture<Void>> futures = runnables.stream()
+            .map(runnable -> CompletableFuture.runAsync(() -> {
+                try {
+                    runnable.run();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }, executorService))
+            .toList();
+
+        CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
+        executorService.shutdown();
 
         // then
         assertThat(successCount.get()).isEqualTo(2);
