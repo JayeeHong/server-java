@@ -29,6 +29,9 @@ dependencyManagement {
 	}
 }
 
+val querydslVersion = "5.0.0"
+val restAssuredVersion = "5.3.2"
+
 dependencies {
     // Spring
 	implementation("org.springframework.boot:spring-boot-starter-validation")
@@ -36,6 +39,12 @@ dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-data-jpa")
 	implementation("org.springframework.boot:spring-boot-starter-web")
 	implementation("org.springframework.retry:spring-retry:1.3.3")
+
+	// QueryDSL
+	implementation("com.querydsl:querydsl-jpa:${querydslVersion}:jakarta")
+	annotationProcessor("com.querydsl:querydsl-apt:${querydslVersion}:jakarta")
+	annotationProcessor("jakarta.annotation:jakarta.annotation-api")
+	annotationProcessor("jakarta.persistence:jakarta.persistence-api")
 
     // DB
 	runtimeOnly("com.mysql:mysql-connector-j")
@@ -59,6 +68,25 @@ dependencies {
 	// redis
 	implementation("org.springframework.boot:spring-boot-starter-data-redis")
 	implementation("org.redisson:redisson-spring-boot-starter:3.27.2")
+
+	// RestAssured
+	testImplementation("io.rest-assured:rest-assured:${restAssuredVersion}")
+	testImplementation("io.rest-assured:json-path:${restAssuredVersion}")
+	testImplementation("io.rest-assured:json-schema-validator:${restAssuredVersion}")
+}
+
+val querydslDir = "$buildDir/generated/querydsl"
+
+sourceSets {
+	main {
+		java {
+			srcDir(querydslDir)
+		}
+	}
+}
+
+tasks.withType<JavaCompile> {
+	options.annotationProcessorGeneratedSourcesDirectory = file(querydslDir)
 }
 
 tasks.withType<Test> {
