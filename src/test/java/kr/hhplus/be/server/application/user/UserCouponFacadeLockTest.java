@@ -50,39 +50,24 @@ public class UserCouponFacadeLockTest extends ConcurrencyTestSupport {
         AtomicInteger successCount = new AtomicInteger();
         AtomicInteger failCount = new AtomicInteger();
 
-        List<Runnable> runnables = new ArrayList<>();
-        runnables.add(() -> {
-            try {
-                userCouponFacade.issueUserCoupon(criteria1);
-                successCount.incrementAndGet();
-            } catch (Exception e) {
-                failCount.incrementAndGet();
-            }
-        });
-
-        runnables.add(() -> {
-            try {
-                userCouponFacade.issueUserCoupon(criteria2);
-                successCount.incrementAndGet();
-            } catch (Exception e) {
-                failCount.incrementAndGet();
-            }
-        });
-
-        ExecutorService executorService = Executors.newFixedThreadPool(runnables.size());
-
-        List<CompletableFuture<Void>> futures = runnables.stream()
-            .map(runnable -> CompletableFuture.runAsync(() -> {
+        executeConcurrency(List.of(
+            () -> {
                 try {
-                    runnable.run();
+                    userCouponFacade.issueUserCoupon(criteria1);
+                    successCount.incrementAndGet();
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    failCount.incrementAndGet();
                 }
-            }, executorService))
-            .toList();
-
-        CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
-        executorService.shutdown();
+            },
+            () -> {
+                try {
+                    userCouponFacade.issueUserCoupon(criteria2);
+                    successCount.incrementAndGet();
+                } catch (Exception e) {
+                    failCount.incrementAndGet();
+                }
+            }
+        ));
 
         // then
         assertThat(successCount.get()).isEqualTo(2);
