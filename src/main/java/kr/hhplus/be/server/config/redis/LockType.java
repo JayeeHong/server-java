@@ -1,4 +1,4 @@
-package kr.hhplus.be.server.support.lock;
+package kr.hhplus.be.server.config.redis;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
