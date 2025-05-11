@@ -1,13 +1,13 @@
 package kr.hhplus.be.server.application.user;
 
 import java.util.List;
+import kr.hhplus.be.server.config.redis.DistributedLock;
+import kr.hhplus.be.server.config.redis.LockType;
 import kr.hhplus.be.server.domain.coupon.CouponInfo;
 import kr.hhplus.be.server.domain.coupon.CouponService;
 import kr.hhplus.be.server.domain.user.UserCouponInfo;
 import kr.hhplus.be.server.domain.user.UserCouponService;
 import kr.hhplus.be.server.domain.user.UserService;
-import kr.hhplus.be.server.support.lock.DistributedLock;
-import kr.hhplus.be.server.support.lock.LockType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
