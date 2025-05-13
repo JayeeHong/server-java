@@ -24,6 +24,7 @@ import org.mockito.InOrder;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.ApplicationEventPublisher;
 
 @ExtendWith(MockitoExtension.class)
 class OrderFacadeUnitTest {
@@ -51,6 +52,9 @@ class OrderFacadeUnitTest {
 
     @Mock
     private PaymentService paymentService;
+
+    @Mock
+    private ApplicationEventPublisher publisher;
 
     @Test
     @DisplayName("주문 및 결제를 한다.")
