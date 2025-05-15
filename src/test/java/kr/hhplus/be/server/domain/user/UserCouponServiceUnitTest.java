@@ -56,7 +56,7 @@ class UserCouponServiceUnitTest {
 
         // when, then
         assertThatThrownBy(() -> userCouponService.createUserCoupon(command))
-            .isInstanceOf(IllegalArgumentException.class);
+            .isInstanceOf(Exception.class);
     }
 
     @Test

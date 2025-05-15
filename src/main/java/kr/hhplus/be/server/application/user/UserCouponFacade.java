@@ -37,6 +37,8 @@ public class UserCouponFacade {
         userService.getUser(criteria.getUserId());
 
         couponService.issueCoupon(criteria.getCouponId());
+
+        userCouponService.createUserCouponRedis(criteria.toCommand());
         userCouponService.createUserCoupon(criteria.toCommand());
     }
 
