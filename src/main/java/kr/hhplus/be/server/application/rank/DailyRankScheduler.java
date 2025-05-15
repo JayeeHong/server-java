@@ -8,12 +8,14 @@ import kr.hhplus.be.server.domain.rank.DailyProductRank;
 import kr.hhplus.be.server.infrastructure.rank.DailyProductRankRepository;
 import kr.hhplus.be.server.infrastructure.rank.RankCacheRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class DailyRankScheduler {
 
     private final RankCacheRepository rankCacheRepository;
@@ -24,6 +26,8 @@ public class DailyRankScheduler {
     public void flushDailyRanking() {
         LocalDate yesterday = LocalDate.now(ZoneId.of("Asia/Seoul")).minusDays(1);
         String key = "daily:ranking:" + yesterday;
+
+        log.info("daily-ranking-scheduler-key::: {}", key);
 
         Set<ZSetOperations.TypedTuple<String>> entries = rankCacheRepository.getSortedSet(key);
         if (entries == null || entries.isEmpty()) {
