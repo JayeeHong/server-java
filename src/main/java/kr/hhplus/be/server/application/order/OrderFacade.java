@@ -1,6 +1,7 @@
 package kr.hhplus.be.server.application.order;
 
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.Optional;
 import kr.hhplus.be.server.domain.balance.BalanceService;
 import kr.hhplus.be.server.domain.coupon.CouponInfo.Coupon;
@@ -61,7 +62,7 @@ public class OrderFacade {
 
         // 커밋 후 캐싱을 위해 이벤트 발행
         publisher.publishEvent(
-            new ProductOrderedEvent(orderProducts.getOrderItems(), LocalDate.now())
+            new ProductOrderedEvent(orderProducts.getOrderItems(), LocalDate.now(ZoneId.of("Asia/Seoul")))
         );
 
         return OrderResult.Order.of(order);

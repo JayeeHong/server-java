@@ -19,6 +19,9 @@ public class RankingEventListener {
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void handle(ProductOrderedEvent event) {
         String key = "daily:ranking:" + event.getOrderDate();
+
+        log.info("product-daily-ranking-key::: {}", key);
+
         for (ProductInfo.OrderItem item : event.getItems()) {
             try {
                 cacheRepository.incrementScore(key, item.getProductId().toString(),
