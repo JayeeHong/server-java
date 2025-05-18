@@ -53,13 +53,30 @@ public class UserCouponService {
         String key = ISSUED_KEY_PREFIX + command.getCouponId();
         double score = System.currentTimeMillis();
 
-        // 이미 발급된 사용자인지 확인
-        Boolean alreadyIssued = redisTemplate.opsForZSet().score(key, String.valueOf(command.getUserId())) != null;
-        if (Boolean.TRUE.equals(alreadyIssued)) {
-            log.info("이미 사용자에게 발급된 쿠폰입니다. couponId={}, userId={}", command.getCouponId(),
-                command.getUserId());
-            throw new IllegalStateException("이미 사용자에게 발급된 쿠폰입니다.");
-        }
+        // 쿠폰 만료일을 epoch seconds 로
+        long expireAt = couponRepository.findById(command.getCouponId())
+            .getExpiredAt()
+            .atZone(ZoneId.of("Asia/Seoul"))
+            .toEpochSecond();
+
+        boolean success = false;
+        int attempts = 0;
+
+        while (!success && attempts < 5) {
+            attempts++;
+
+            List<Object> txResults = redisTemplate.execute(new SessionCallback<>() {
+                @SuppressWarnings("unchecked")
+                @Override
+                public List<Object> execute(RedisOperations ops) throws DataAccessException {
+                    // 1) 변경 감시 시작
+                    ops.watch(key);
+
+                    // 2) 이미 발급된 사용자인지 검사
+                    if (ops.opsForZSet().score(key, userId) != null) {
+                        ops.unwatch();
+                        throw new IllegalStateException("이미 발급된 쿠폰입니다.");
+                    }
 
         // 레디스 sorted set에 (userId, timestamp) 추가
         redisTemplate.opsForZSet().add(key, String.valueOf(command.getUserId()), score);
