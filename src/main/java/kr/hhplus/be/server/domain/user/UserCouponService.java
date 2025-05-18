@@ -1,5 +1,6 @@
 package kr.hhplus.be.server.domain.user;
 
+import java.time.Instant;
 import java.time.ZoneId;
 import java.util.Date;
 import java.util.List;
@@ -7,7 +8,10 @@ import kr.hhplus.be.server.domain.coupon.CouponRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.dao.DataAccessException;
+import org.springframework.data.redis.core.RedisOperations;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.SessionCallback;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -21,6 +25,7 @@ public class UserCouponService {
     private final RedisTemplate<String, String> redisTemplate;
 
     private static final String ISSUED_KEY_PREFIX = "usercoupon:issued:";
+
     @Value("${coupon.issue.limit}")
     private int limit; //선착순 허용 인원
 
@@ -51,6 +56,7 @@ public class UserCouponService {
     // 사용자 쿠폰 발행 - 레디스
     public void createUserCouponRedis(UserCouponCommand.Publish command) {
         String key = ISSUED_KEY_PREFIX + command.getCouponId();
+        String userId = String.valueOf(command.getUserId());
         double score = System.currentTimeMillis();
 
         // 쿠폰 만료일을 epoch seconds 로
@@ -78,23 +84,41 @@ public class UserCouponService {
                         throw new IllegalStateException("이미 발급된 쿠폰입니다.");
                     }
 
-        // 레디스 sorted set에 (userId, timestamp) 추가
-        redisTemplate.opsForZSet().add(key, String.valueOf(command.getUserId()), score);
+                    // 3) 트랜잭션 시작
+                    ops.multi();
 
-        // 순위 확인
-        Long rank = redisTemplate.opsForZSet().rank(key, String.valueOf(command.getUserId()));
-        if (rank == null || rank >= limit) {
-            // N명 이후라면 방금 추가한 엔트리 제거 후 에러
-            redisTemplate.opsForZSet().remove(key, String.valueOf(command.getUserId()));
-            log.info("선착순 발급 수량 초과");
-            throw new IllegalStateException("선착순 발급 수량 초과");
+                    // 4) ZADD
+                    ops.opsForZSet().add(key, userId, score);
+                    // 5) RANK 조회 (0-base)
+                    ops.opsForZSet().rank(key, userId);
+                    // 6) EXPIREAT 설정
+                    ops.expireAt(key, Date.from(Instant.ofEpochSecond(expireAt)));
+
+                    // 7) EXEC
+                    return ops.exec();
+                }
+            });
+
+            if (txResults == null) {
+                // 다른 클라이언트에 의해 WATCH 키가 변경되어 EXEC 이 취소됨 → 재시도
+                continue;
+            }
+
+            // txResults = [ Long(addedCount), Long(rank), Boolean(expireResult) ]
+            Long rank = (Long) txResults.get(1);
+            if (rank == null || rank >= limit) {
+                // 제한 초과 시 롤백: ZREM
+                redisTemplate.opsForZSet().remove(key, userId);
+                throw new IllegalStateException("선착순 발급 수량 초과");
+            }
+
+            success = true;  // 정상 처리
+            log.debug("쿠폰 발급 성공 (rank={}%)", rank);
         }
 
-        // 쿠폰의 만료일에 맞춰 TTL 지정
-        redisTemplate.expireAt(key, Date.from(
-            couponRepository.findById(command.getCouponId()).getExpiredAt()
-                .atZone(ZoneId.of("Asia/Seoul")).toInstant()
-        ));
+        if (!success) {
+            throw new IllegalStateException("Redis 트랜잭션이 반복적으로 충돌하여 발급에 실패했습니다.");
+        }
     }
 
     // 사용할 수 있는 쿠폰을 조회한다
