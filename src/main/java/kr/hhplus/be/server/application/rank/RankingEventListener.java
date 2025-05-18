@@ -28,7 +28,7 @@ public class RankingEventListener {
                     item.getQuantity());
             } catch (Exception e) {
                 // 캐싱 실패시에도 주문 트랜잭션에는 영향을 주지 않는다.
-                log.error("Redis ranking cache failed for key={}, member={}", key,
+                log.error("Redis ranking cache failed for key={}, productId={}", key,
                     item.getProductId(), e);
             }
         }
