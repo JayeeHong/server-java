@@ -3,6 +3,7 @@ package kr.hhplus.be.server.domain.order;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import kr.hhplus.be.server.application.order.OrderInfoEventPublisher;
 import kr.hhplus.be.server.domain.order.OrderCommand.PaidItems;
 import kr.hhplus.be.server.domain.order.OrderInfo.PaidItem;
 import lombok.RequiredArgsConstructor;
@@ -15,6 +16,7 @@ public class OrderService {
 
     private final OrderRepository orderRepository;
     private final OrderExternalClient orderExternalClient;
+    private final OrderInfoEventPublisher orderInfoEventPublisher;
 
     @Transactional
     public OrderInfo.Order createOrder(OrderCommand.Create command) {
@@ -39,7 +41,8 @@ public class OrderService {
         Order order = orderRepository.findById(orderId);
         order.paid(LocalDateTime.now());
 
-        orderExternalClient.sendOrderMessage(order);
+//        orderExternalClient.sendOrderMessage(order);
+        orderInfoEventPublisher.success(OrderInfoEvent.toOrderInfoEvent(order));
     }
 
     public OrderInfo.PaidItems getPaidItems(OrderCommand.DateQuery command) {
