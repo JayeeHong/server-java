@@ -3,11 +3,13 @@ package kr.hhplus.be.server.domain.order;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
+import kr.hhplus.be.server.application.order.OrderInfoEventPublisher;
 import kr.hhplus.be.server.domain.order.OrderCommand.Create;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -26,7 +28,7 @@ class OrderServiceUnitTest {
     private OrderRepository orderRepository;
 
     @Mock
-    private OrderExternalClient orderExternalClient;
+    private OrderInfoEventPublisher eventPublisher;
 
     @Test
     @DisplayName("주문을 생성한다")
@@ -63,7 +65,7 @@ class OrderServiceUnitTest {
     void paidOrder() {
 
         // given
-        Order order = Order.create(1L, 10L, 1_000L, List.of(
+        Order order = Order.of(100L, 1L, 10L, 1_000L, List.of(
             OrderItem.create(100L, "productA", 1_000L, 10)
         ));
 
@@ -74,6 +76,6 @@ class OrderServiceUnitTest {
 
         // then
         assertThat(order.getOrderStatus()).isEqualTo(OrderStatus.PAY_COMPLETE);
-        verify(orderExternalClient, times(1)).sendOrderMessage(order);
+        verify(eventPublisher).success(argThat(event -> event.getOrderId().equals(order.getId())));
     }
 }
